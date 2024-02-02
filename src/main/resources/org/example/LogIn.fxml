@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane  maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #8789C0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.LogInController">
+   <children>
+      <TextField fx:id="textFieldUsuarioe" layoutX="472.0" layoutY="204.0" prefHeight="26.0" prefWidth="250.0" promptText="Introduzca su usuario" style="-fx-background-radius: 5px;" />
+      <PasswordField fx:id="passwordFieldClave" layoutX="472.0" layoutY="314.0" prefHeight="26.0" prefWidth="250.0" promptText="Introduzca su contraseña" style="-fx-background-radius: 5px;" />
+      <Label layoutX="474.0" layoutY="168.0" prefHeight="26.0" prefWidth="60.0" text="Usuario:" />
+      <Label layoutX="472.0" layoutY="284.0" text="Contraseña:" />
+      <Button fx:id="botonClaveOlvidada" layoutX="472.0" layoutY="358.0" mnemonicParsing="false" onAction="#recuperarClave" prefHeight="26.0" prefWidth="142.0" style="-fx-background-color: transparent; -fx-cursor: hand;" text="¿Olvidó su contraseña?" textFill="#1e00ff">
+         <tooltip>
+            <Tooltip text="Haga clic para abrir el gestor de recuperación de contraseñas" />
+         </tooltip>
+      </Button>
+      <ImageView fitHeight="336.0" fitWidth="316.0" layoutX="64.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../Images/Logo.png" />
+         </image>
+      </ImageView>
+      <Button fx:id="iniciarSesion" layoutX="597.0" layoutY="449.0" mnemonicParsing="false" onAction="#iniciarSesion" prefHeight="26.0" prefWidth="126.0" text="Iniciar Sesión" />
+      <Button fx:id="botonCerrar" layoutX="764.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" prefHeight="26.0" prefWidth="36.0" style="-fx-background-color: red; -fx-font-weight: 700;" text="X" textFill="#fcfbfb">
+         <font>
+            <Font name="Consolas" size="16.0" />
+         </font>
+      </Button>
+   </children>
+</AnchorPane>
