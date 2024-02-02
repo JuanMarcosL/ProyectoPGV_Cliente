@@ -1,6 +1,5 @@
 package org.example.controller;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,31 +12,24 @@ import javafx.stage.Stage;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
-import oshi.SystemInfo;
-import oshi.hardware.GlobalMemory;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainScreenController {
 
-    private static double usedPercentage;
-
-    private static Stage stageMainScreen;
+     private static Stage stageMainScreen;
     @FXML
     public Button addServerButton;
 
     @FXML
-    private Gauge lineRAM;
-    @FXML
     private Gauge gaugeRAM;
 
+    public void init(){
+        gaugeRAM.setTitle("RAM");
+        gaugeRAM.setUnit("%");
 
-//    @Override
-//    public void start(Stage primaryStage) throws Exception {
-//        this.stageMainScreen = primaryStage;
-//        show();
-//    }
-
+    }
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("LogIn.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
@@ -45,6 +37,12 @@ public class MainScreenController {
         stageMainScreen.setScene(scene);
         stageMainScreen.setResizable(false);
         stageMainScreen.show();
+
+        stageMainScreen.setOnCloseRequest(event -> {
+            Platform.exit();
+            System.exit(0);
+        });
+
     }
 
     public static Stage getStageMainScreen() {
@@ -55,30 +53,12 @@ public class MainScreenController {
     }
 
 
-
     public void initialize() {
-
-        // new Thread(this::monitorizeRAM).start();
-
-        gaugeRAM.setValue(usedPercentage);
         gaugeRAM.setUnit("%");
-        gaugeRAM.setDecimals(1);
-        gaugeRAM.setAnimated(true);
-        gaugeRAM.setAnimationDuration(1000);
-        gaugeRAM.setBarColor(Gauge.DARK_COLOR);
-        //gaugeRAM.setNeedleColor(Gauge.DARK_COLOR);
-        gaugeRAM.setThresholdColor(Gauge.DARK_COLOR);
-        //gaugeRAM.setThreshold(80);
+        gaugeRAM.setTitle("RAM");
+        gaugeRAM.setThreshold(65);
+        gaugeRAM.setThresholdColor(Gauge.BRIGHT_COLOR);
         gaugeRAM.setThresholdVisible(true);
-
-        lineRAM.setValue(usedPercentage);
-        lineRAM.setUnit("%");
-        lineRAM.setDecimals(2);
-        lineRAM.setAnimated(true);
-        lineRAM.setAnimationDuration(1000);
-        lineRAM.setBarColor(Gauge.DARK_COLOR);
-        lineRAM.setThreshold(80);
-        lineRAM.setThresholdVisible(true);
 
         new Thread(() -> {
             while (true) {
@@ -93,67 +73,61 @@ public class MainScreenController {
         }).start();
     }
 
-public void updateGauges() {
-    String messageFromTCPClient = TCPClient.getLastMessage();
-    if (!messageFromTCPClient.isEmpty()) {
-        System.out.println("Mensaje recibido del servidor: " + messageFromTCPClient);
-        double ramUsage = Double.parseDouble(messageFromTCPClient);
+    public void updateGauges() {
 
-        // Actualiza los medidores en el hilo de la interfaz de usuario
-        Platform.runLater(() -> {
-            gaugeRAM.setValue(ramUsage);
-            lineRAM.setValue(ramUsage);
-        });
-    } else {
-        System.out.println("No se ha recibido mensaje del servidor.");
-    }
-}
+        String messageFromTCPClient = TCPClient.getLastMessage();
 
-public void showDialogAddServer(ActionEvent actionEvent) {
-    Dialog<String[]> dialog = new Dialog<>();
-    dialog.setTitle("Añadir servidor");
+        if (!messageFromTCPClient.isEmpty()) {
+            double ramUsage = Double.parseDouble(messageFromTCPClient);
 
-// Configura el contenido del diálogo
-    GridPane grid = new GridPane();
-    grid.setHgap(10);
-    grid.setVgap(10);
-    grid.setPadding(new Insets(20, 150, 10, 10));
+            Platform.runLater(() -> {
+                gaugeRAM.setValue(ramUsage);
+            });
 
-    TextField alias = new TextField();
-    TextField ip = new TextField();
-    TextField puerto = new TextField();
-
-    grid.add(new Label("Alias:"), 0, 0);
-    grid.add(alias, 1, 0);
-    grid.add(new Label("Dirección IP:"), 0, 1);
-    grid.add(ip, 1, 1);
-    grid.add(new Label("Puerto:"), 0, 2);
-    grid.add(puerto, 1, 2);
-
-    dialog.getDialogPane().setContent(grid);
-
-// Añade los botones de "Añadir" y "Cancelar" al diálogo
-    ButtonType addButtonType = new ButtonType("Añadir", ButtonType.OK.getButtonData());
-    dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
-
-// Configura el resultado del diálogo para que sea el texto introducido por el usuario
-    dialog.setResultConverter(buttonType -> {
-        if (buttonType == addButtonType) {
-            return new String[]{alias.getText(), ip.getText(), puerto.getText()};
         }
-        return null;
-    });
-
-// Muestra el diálogo y obtén el resultado
-    String[] result = dialog.showAndWait().orElse(null);
-    if (result != null) {
-        System.out.println("Alias: " + result[0]);
-        System.out.println("Dirección IP: " + result[1]);
-        System.out.println("Puerto: " + result[2]);
     }
-}
 
     public void addServer(ActionEvent actionEvent) {
         showDialogAddServer(actionEvent);
+    }
+
+    public void showDialogAddServer(ActionEvent actionEvent) {
+        Dialog<String[]> dialog = new Dialog<>();
+        dialog.setTitle("Añadir servidor");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField alias = addFieldToGrid(grid, "Alias:", 0);
+        TextField ip = addFieldToGrid(grid, "Dirección IP:", 1);
+        TextField puerto = addFieldToGrid(grid, "Puerto:", 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType addButtonType = new ButtonType("Añadir", ButtonType.OK.getButtonData());
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == addButtonType) {
+                return new String[]{alias.getText(), ip.getText(), puerto.getText()};
+            }
+            return null;
+        });
+
+        String[] result = dialog.showAndWait().orElse(null);
+        if (result != null) {
+            new Thread(() -> {
+                TCPClient tcpClient = new TCPClient(result[0], result[1], Integer.parseInt(result[2]));
+            }).start();
+        }
+    }
+
+    private TextField addFieldToGrid(GridPane grid, String labelText, int row) {
+        TextField textField = new TextField();
+        grid.add(new Label(labelText), 0, row);
+        grid.add(textField, 1, row);
+        return textField;
     }
 }

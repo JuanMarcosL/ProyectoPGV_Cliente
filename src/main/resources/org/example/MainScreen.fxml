@@ -13,7 +13,6 @@
                 <Font name="Consolas" size="16.0" />
             </font>
         </Button>
-      <Gauge fx:id="lineRAM" layoutX="378.0" layoutY="219.0" skinType="BULLET_CHART" />
       <Gauge fx:id="gaugeRAM" layoutX="488.0" layoutY="316.0" />
       <StackPane alignment="BOTTOM_CENTER" prefHeight="600.0" prefWidth="250.0" style="-fx-padding: 50px;">
          <children>
