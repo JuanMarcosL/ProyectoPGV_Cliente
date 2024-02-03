@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane  maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #8789C0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.LogInController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #8789C0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.LogInController">
    <children>
       <TextField fx:id="textFieldUsuarioe" layoutX="472.0" layoutY="204.0" prefHeight="26.0" prefWidth="250.0" promptText="Introduzca su usuario" style="-fx-background-radius: 5px;" />
       <PasswordField fx:id="passwordFieldClave" layoutX="472.0" layoutY="314.0" prefHeight="26.0" prefWidth="250.0" promptText="Introduzca su contraseña" style="-fx-background-radius: 5px;" />
@@ -23,7 +23,7 @@
       </Button>
       <ImageView fitHeight="336.0" fitWidth="316.0" layoutX="64.0" layoutY="120.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../Images/Logo.png" />
+            <Image url="@../../Images/Logo.png" />
          </image>
       </ImageView>
       <Button fx:id="iniciarSesion" layoutX="597.0" layoutY="449.0" mnemonicParsing="false" onAction="#iniciarSesion" prefHeight="26.0" prefWidth="126.0" text="Iniciar Sesión" />

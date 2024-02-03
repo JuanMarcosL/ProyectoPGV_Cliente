@@ -1,5 +1,9 @@
 package org.example.controller;
 
+import javafx.animation.FillTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -7,23 +11,36 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainScreenController {
 
      private static Stage stageMainScreen;
     @FXML
     public Button addServerButton;
+    @FXML
+    public Button botonCerrar;
 
     @FXML
     private Gauge gaugeRAM;
+
+    @FXML
+    private BorderPane borderPaneServers;
+
+    @FXML
+    private VBox vBoxServers;
 
     public void init(){
         gaugeRAM.setTitle("RAM");
@@ -33,15 +50,17 @@ public class MainScreenController {
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("LogIn.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(AppMain.class.getResource("..\\..\\CSS\\styles.css").toExternalForm()); // Carga la hoja de estilo
         stageMainScreen.setTitle("ServiStat");
         stageMainScreen.setScene(scene);
         stageMainScreen.setResizable(false);
+
         stageMainScreen.show();
 
-        stageMainScreen.setOnCloseRequest(event -> {
-            Platform.exit();
-            System.exit(0);
-        });
+//        stageMainScreen.setOnCloseRequest(event -> {
+//            Platform.exit();
+//            System.exit(0);
+//        });
 
     }
 
@@ -50,6 +69,8 @@ public class MainScreenController {
     }
 
     public void closeApp(ActionEvent actionEvent) {
+        Platform.exit();
+        System.exit(0);
     }
 
 
@@ -121,6 +142,35 @@ public class MainScreenController {
             new Thread(() -> {
                 TCPClient tcpClient = new TCPClient(result[0], result[1], Integer.parseInt(result[2]));
             }).start();
+
+            vBoxServers.setStyle("-fx-padding: 10;");
+            // Crea un nuevo botón y lo agrega al StackPane
+            Button serverButton = new Button(result[0]);
+            serverButton.setMaxWidth(Double.MAX_VALUE);
+            serverButton.setPrefHeight(50);
+            serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
+
+
+
+            Platform.runLater(() -> {
+                vBoxServers.setSpacing(10);
+                vBoxServers.getChildren().add(serverButton);
+            });
+
+    /*        HOVER SOBRE LOS BOTONES DE LOS SERVIDORES
+            serverButton.setOnMouseEntered(event -> {
+                KeyValue keyValue1 = new KeyValue(serverButton.styleProperty(), "-fx-background-color: #FFC125;");
+                KeyFrame keyFrame1 = new KeyFrame(Duration.seconds(0.2), keyValue1);
+                Timeline timeline1 = new Timeline(keyFrame1);
+                timeline1.play();
+            });
+
+            serverButton.setOnMouseExited(event -> {
+                KeyValue keyValue2 = new KeyValue(serverButton.styleProperty(), "-fx-background-color: #FFFFFF;");
+                KeyFrame keyFrame2 = new KeyFrame(Duration.seconds(0.2), keyValue2);
+                Timeline timeline2 = new Timeline(keyFrame2);
+                timeline2.play();
+            });*/
         }
     }
 
