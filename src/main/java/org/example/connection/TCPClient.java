@@ -49,7 +49,7 @@ public class TCPClient {
                         String message = in.readLine();
                         lastMessage = message; // Guarda el último mensaje recibido
 
-//                        System.out.println("En tcpClient" + message); //recibo la RAM
+                        System.out.println("En tcpClient" + message); //recibo la RAM
 //                        System.out.println("En tcpClient lastMessage" + lastMessage); //recibo la RAM
                     }
                 } catch (IOException ex) {

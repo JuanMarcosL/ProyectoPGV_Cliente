@@ -13,6 +13,7 @@
     -fx-background-insets: 0;
     -fx-text-alignment: center;
     -fx-transition: background-color 1s ease-in-out;
+    -fx-pref-height: 25;
 }
 
 #addServer{
@@ -26,6 +27,8 @@
 
 
 }
+
+
 /*.servidores:hover {*/
 /*    -fx-background-color: #b45858;*/
 

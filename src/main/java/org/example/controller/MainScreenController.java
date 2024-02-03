@@ -97,6 +97,7 @@ public class MainScreenController {
     public void updateGauges() {
 
         String messageFromTCPClient = TCPClient.getLastMessage();
+        System.out.println("En MainScreenController" + messageFromTCPClient);
 
         if (!messageFromTCPClient.isEmpty()) {
             double ramUsage = Double.parseDouble(messageFromTCPClient);
@@ -143,11 +144,11 @@ public class MainScreenController {
                 TCPClient tcpClient = new TCPClient(result[0], result[1], Integer.parseInt(result[2]));
             }).start();
 
-            vBoxServers.setStyle("-fx-padding: 10;");
+            vBoxServers.setStyle("-fx-padding: 20;");
             // Crea un nuevo botón y lo agrega al StackPane
             Button serverButton = new Button(result[0]);
             serverButton.setMaxWidth(Double.MAX_VALUE);
-            serverButton.setPrefHeight(50);
+            //serverButton.setPrefHeight(20);
             serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
 
 
