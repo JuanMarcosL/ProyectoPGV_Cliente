@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -27,11 +28,23 @@ import java.io.IOException;
 
 public class MainScreenController {
 
-     private static Stage stageMainScreen;
+    private static Stage stageMainScreen;
     @FXML
     public Button addServerButton;
     @FXML
     public Button botonCerrar;
+    @FXML
+    public Gauge gaugeCPU;
+    @FXML
+    public ChoiceBox comboBoxDisks;
+    @FXML
+    public Gauge gaugeDisk;
+    @FXML
+    public TextField textFieldDisksFormat;
+    @FXML
+    public TextField textFieldDiskCapacity;
+    @FXML
+    public LineChart chartRed;
 
     @FXML
     private Gauge gaugeRAM;
@@ -42,11 +55,12 @@ public class MainScreenController {
     @FXML
     private VBox vBoxServers;
 
-    public void init(){
-        gaugeRAM.setTitle("RAM");
-        gaugeRAM.setUnit("%");
+    public void init() {
+//        gaugeRAM.setTitle("RAM");
+//        gaugeRAM.setUnit("%");
 
     }
+
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("LogIn.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
@@ -75,8 +89,8 @@ public class MainScreenController {
 
 
     public void initialize() {
-        gaugeRAM.setUnit("%");
-        gaugeRAM.setTitle("RAM");
+//        gaugeRAM.setUnit("%");
+//        gaugeRAM.setTitle("RAM");
         gaugeRAM.setThreshold(65);
         gaugeRAM.setThresholdColor(Gauge.BRIGHT_COLOR);
         gaugeRAM.setThresholdVisible(true);
@@ -95,17 +109,18 @@ public class MainScreenController {
     }
 
     public void updateGauges() {
-
         String messageFromTCPClient = TCPClient.getLastMessage();
         System.out.println("En MainScreenController" + messageFromTCPClient);
 
-        if (!messageFromTCPClient.isEmpty()) {
-            double ramUsage = Double.parseDouble(messageFromTCPClient);
+        if (messageFromTCPClient != null && !messageFromTCPClient.isEmpty()) {
+            String[] splitMessage = messageFromTCPClient.split(",");
+            double ramUsage = splitMessage.length > 0 && !splitMessage[0].isEmpty() ? Double.parseDouble(splitMessage[0]) : 0;
+            double cpuUsage = splitMessage.length > 1 && !splitMessage[1].isEmpty() ? Double.parseDouble(splitMessage[1]) : 0;
 
             Platform.runLater(() -> {
                 gaugeRAM.setValue(ramUsage);
+                gaugeCPU.setValue(cpuUsage);
             });
-
         }
     }
 
@@ -150,7 +165,6 @@ public class MainScreenController {
             serverButton.setMaxWidth(Double.MAX_VALUE);
             //serverButton.setPrefHeight(20);
             serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
-
 
 
             Platform.runLater(() -> {

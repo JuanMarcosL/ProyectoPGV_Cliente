@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import eu.hansolo.medusa.Gauge?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="800.0" prefWidth="1244.0" style="-fx-background-color: #8789C0;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.MainScreenController">
@@ -16,28 +26,107 @@
                 <Font name="Consolas" size="16.0" />
             </font>
         </Button>
-      <Gauge fx:id="gaugeRAM" layoutX="488.0" layoutY="316.0" />
         <BorderPane id="contenedorLateral" fx:id="borderPaneServers" prefHeight="764.0" prefWidth="239.0" stylesheets="@../../CSS/styles.css">
-         <top>
-            <VBox fx:id="vBoxServers" prefHeight="637.0" prefWidth="252.0" style="-fx-padding: 50px;" stylesheets="@../../CSS/styles.css" BorderPane.alignment="CENTER">
-               <children>
-                  <Label contentDisplay="CENTER" text="Servidores" textAlignment="CENTER" textFill="WHITE">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-               </children>
-            </VBox>
-         </top>
          <bottom>
-            <Pane prefHeight="160.0" prefWidth="239.0" BorderPane.alignment="CENTER">
+            <Pane prefHeight="126.0" prefWidth="239.0" BorderPane.alignment="CENTER">
                <children>
                       <Button id="addServer" fx:id="addServerButton" alignment="CENTER" contentDisplay="CENTER" layoutX="27.0" layoutY="72.0" mnemonicParsing="false" onAction="#addServer" text="Añadir Servidor" />
                </children>
             </Pane>
          </bottom>
+         <top>
+            <Pane prefHeight="634.0" prefWidth="239.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label contentDisplay="CENTER" layoutX="64.0" layoutY="26.0" text="Servidores" textAlignment="CENTER" textFill="WHITE">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <VBox fx:id="vBoxServers" prefHeight="634.0" prefWidth="242.0" style="-fx-padding: 50px;" stylesheets="@../../CSS/styles.css" />
+               </children>
+            </Pane>
+         </top>
         </BorderPane>
+      <GridPane gridLinesVisible="true" layoutX="239.0" layoutY="-2.0" prefHeight="800.0" prefWidth="1006.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Pane>
+               <children>
+                  <Gauge fx:id="gaugeRAM" alert="true" alertMessage="Se ha superado el umbral" knobType="FLAT" layoutX="143.0" layoutY="52.0" lcdFont="STANDARD" majorTickMarkType="TRAPEZOID" mediumTickMarkType="TRIANGLE" minorTickMarkType="DOT" needleBehavior="OPTIMIZED" prefHeight="200.0" prefWidth="214.0" title="RAM" unit="\%">
+                     <minorTickMarkColor>
+                        <Color red="0.010526316240429878" green="0.010487329214811325" blue="0.010487329214811325" />
+                     </minorTickMarkColor>
+                     <majorTickMarkColor>
+                        <Color />
+                     </majorTickMarkColor>
+                     <knobColor>
+                        <Color />
+                     </knobColor>
+                  </Gauge>
+                  <Label layoutX="236.0" layoutY="24.0" prefHeight="17.0" prefWidth="27.0" text="RAM" textAlignment="JUSTIFY" />
+               </children>
+            </Pane>
+            <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
+               <children>
+                  <Label layoutX="251.0" layoutY="14.0" prefHeight="17.0" prefWidth="27.0" text="CPU" />
+                  <Gauge fx:id="gaugeCPU" layoutX="151.0" layoutY="43.0" prefHeight="212.0" prefWidth="227.0" skinType="MODERN" threshold="75.0" thresholdVisible="true" title="CPU" unit="\%">
+                     <subTitleColor>
+                        <Color />
+                     </subTitleColor>
+                     <tickMarkColor>
+                        <Color red="0.8947368264198303" green="0.8947368264198303" blue="0.8947368264198303" />
+                     </tickMarkColor>
+                     <titleColor>
+                        <Color red="1.0" green="1.0" blue="1.0" />
+                     </titleColor>
+                     <thresholdColor>
+                        <Color red="0.9684210419654846" green="0.04842105135321617" />
+                     </thresholdColor>
+                  </Gauge>
+               </children>
+            </Pane>
+            <Pane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
+               <children>
+                  <Label layoutX="234.0" layoutY="14.0" prefHeight="17.0" prefWidth="36.0" text="Disco" />
+                  <ChoiceBox fx:id="comboBoxDisks" layoutX="14.0" layoutY="67.0" prefWidth="150.0" />
+                  <Gauge fx:id="gaugeDisk" layoutX="245.0" layoutY="80.0" prefHeight="179.0" prefWidth="227.0" skinType="LEVEL" title="Uso" />
+                  <Label layoutX="14.0" layoutY="41.0" text="Nombre" />
+                  <Label layoutX="14.0" layoutY="125.0" text="Formato" />
+                  <Label layoutX="14.0" layoutY="185.0" text="Capacidad" />
+                  <Label layoutX="349.0" layoutY="59.0" text="uso" />
+                  <TextField fx:id="textFieldDisksFormat" layoutX="15.0" layoutY="145.0" />
+                  <TextField fx:id="textFieldDiskCapacity" layoutX="15.0" layoutY="209.0" />
+               </children>
+            </Pane>
+            <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <children>
+                  <Label layoutX="238.0" layoutY="14.0" text="RED" />
+                  <LineChart fx:id="chartRed" layoutX="36.0" layoutY="39.0" prefHeight="227.0" prefWidth="426.0">
+                    <xAxis>
+                      <CategoryAxis side="BOTTOM" />
+                    </xAxis>
+                    <yAxis>
+                      <NumberAxis side="LEFT" />
+                    </yAxis>
+                  </LineChart>
+               </children>
+            </Pane>
+            <Pane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
+               <children>
+                  <Label layoutX="172.0" layoutY="14.0" prefHeight="17.0" prefWidth="160.0" text="Dispositivos USB conectados" />
+                  <ListView layoutX="92.0" layoutY="40.0" prefHeight="212.0" prefWidth="328.0" />
+               </children>
+            </Pane>
+            <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+         </children>
+      </GridPane>
     </children>
 </AnchorPane>
-
-
