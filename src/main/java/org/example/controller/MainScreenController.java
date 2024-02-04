@@ -1,9 +1,5 @@
 package org.example.controller;
 
-import javafx.animation.FillTransition;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,17 +10,14 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.util.Duration;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
-
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainScreenController {
 
@@ -55,9 +48,13 @@ public class MainScreenController {
     @FXML
     private VBox vBoxServers;
 
+    private ExecutorService executorService = Executors.newFixedThreadPool(10);
+
     public void init() {
+//        gaugeRAM.setAlert(true);
+//        gaugeRAM.alert
 //        gaugeRAM.setTitle("RAM");
-//        gaugeRAM.setUnit("%");
+//        gaugeRAM.setUnit("%");1
 
     }
 
@@ -68,13 +65,7 @@ public class MainScreenController {
         stageMainScreen.setTitle("ServiStat");
         stageMainScreen.setScene(scene);
         stageMainScreen.setResizable(false);
-
         stageMainScreen.show();
-
-//        stageMainScreen.setOnCloseRequest(event -> {
-//            Platform.exit();
-//            System.exit(0);
-//        });
 
     }
 
@@ -163,29 +154,16 @@ public class MainScreenController {
             // Crea un nuevo botón y lo agrega al StackPane
             Button serverButton = new Button(result[0]);
             serverButton.setMaxWidth(Double.MAX_VALUE);
-            //serverButton.setPrefHeight(20);
-            serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
+             serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
 
-
+            serverButton.setOnAction(event -> {
+                Platform.runLater(() -> serverButton.setStyle("-fx-background-color: #444444;"));
+                executorService.submit(()-> updateGauges());
+            });
             Platform.runLater(() -> {
                 vBoxServers.setSpacing(10);
                 vBoxServers.getChildren().add(serverButton);
             });
-
-    /*        HOVER SOBRE LOS BOTONES DE LOS SERVIDORES
-            serverButton.setOnMouseEntered(event -> {
-                KeyValue keyValue1 = new KeyValue(serverButton.styleProperty(), "-fx-background-color: #FFC125;");
-                KeyFrame keyFrame1 = new KeyFrame(Duration.seconds(0.2), keyValue1);
-                Timeline timeline1 = new Timeline(keyFrame1);
-                timeline1.play();
-            });
-
-            serverButton.setOnMouseExited(event -> {
-                KeyValue keyValue2 = new KeyValue(serverButton.styleProperty(), "-fx-background-color: #FFFFFF;");
-                KeyFrame keyFrame2 = new KeyFrame(Duration.seconds(0.2), keyValue2);
-                Timeline timeline2 = new Timeline(keyFrame2);
-                timeline2.play();
-            });*/
         }
     }
 
