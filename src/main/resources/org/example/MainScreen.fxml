@@ -18,23 +18,23 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-
-    <AnchorPane id="box" prefHeight="777.0" prefWidth="1106.0" style="-fx-background-color: #444; -fx-background-radius: 20px;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.MainScreenController">
+<AnchorPane id="box" prefHeight="777.0" prefWidth="1106.0" style="-fx-background-color: #444; -fx-background-radius: 20px;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.MainScreenController">
         <children>
             <Pane layoutX="38.0" layoutY="47.0" prefHeight="710.0" prefWidth="319.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;">
                 <children>
-                    <ScrollPane fx:id="scrollPaneServers" layoutX="21.0" layoutY="301.0" prefHeight="355.0" prefWidth="282.0" style="-fx-background-color: #ffffff;" stylesheets="@../../CSS/styles.css">
-                        <content>
-                            <VBox fx:id="vBoxServers" />
-                        </content>
+                    <ScrollPane fx:id="scrollPaneServers" layoutX="19.0" layoutY="279.0" prefHeight="355.0" prefWidth="282.0" style="-fx-background-color: #ffffff;" stylesheets="@../../CSS/styles.css">
+               <content>
+                            <VBox fx:id="vBoxServers" prefHeight="349.0" prefWidth="274.0" />
+               </content>
                     </ScrollPane>
-                    <Button id="addServer" fx:id="addServerButton" alignment="CENTER" contentDisplay="CENTER" layoutX="111.0" layoutY="671.0" mnemonicParsing="false" onAction="#addServer" text="Añadir Servidor" />
-                    <Label alignment="CENTER" layoutX="40.0" layoutY="258.0" prefHeight="17.0" prefWidth="239.0" text="Servidores" textAlignment="CENTER">
+                 
+                    <Button id="addServer" fx:id="addServerButton" alignment="CENTER" contentDisplay="CENTER" layoutX="111.0" layoutY="662.0" mnemonicParsing="false" onAction="#addServer" text="Añadir Servidor" />
+                    <Label alignment="CENTER" layoutX="40.0" layoutY="220.0" prefHeight="17.0" prefWidth="239.0" text="Servidores" textAlignment="CENTER">
                         <font>
                             <Font name="Consolas" size="30.0" />
                         </font>
                     </Label>
-                    <ImageView fitHeight="188.0" fitWidth="208.0" layoutX="66.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="188.0" fitWidth="208.0" layoutX="66.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
                         <image>
                             <Image url="@../../Images/Logo.png" />
                         </image>
@@ -84,15 +84,14 @@
             </Label>
          </children>
       </Pane>
-      <Pane layoutX="430.0" layoutY="288.0" prefHeight="220.0" prefWidth="280.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;" />
-      <Pane layoutX="808.0" layoutY="288.0" prefHeight="220.0" prefWidth="280.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;">
+      <Pane layoutX="435.0" layoutY="288.0" prefHeight="220.0" prefWidth="653.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;">
          <children>
-            <Label layoutX="32.0" layoutY="14.0" prefHeight="28.0" prefWidth="217.0" text="Velocidad de Red" textAlignment="JUSTIFY">
+            <Label layoutX="218.0" layoutY="14.0" prefHeight="28.0" prefWidth="217.0" text="Velocidad de Red" textAlignment="JUSTIFY">
                <font>
                   <Font name="Consolas Bold" size="24.0" />
                </font>
             </Label>
-            <LineChart layoutX="35.0" layoutY="42.0" prefHeight="152.0" prefWidth="205.0">
+            <LineChart fx:id="chartRed" layoutX="35.0" layoutY="42.0" prefHeight="152.0" prefWidth="582.0" styleClass="line-chart" stylesheets="@../../CSS/styles.css">
               <xAxis>
                 <CategoryAxis side="BOTTOM" />
               </xAxis>
@@ -100,12 +99,15 @@
                 <NumberAxis side="LEFT" />
               </yAxis>
             </LineChart>
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="114.0" layoutY="186.0" prefHeight="17.0" prefWidth="69.0" text="MBPS" />
+            <Label fx:id="labelMbps" alignment="CENTER" contentDisplay="CENTER" layoutX="228.0" layoutY="186.0" prefHeight="17.0" prefWidth="207.0" text="MBPS">
+               <font>
+                  <Font name="Consolas Bold" size="18.0" />
+               </font></Label>
          </children>
       </Pane>
       <Pane layoutX="430.0" layoutY="531.0" prefHeight="220.0" prefWidth="663.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;">
          <children>
-            <Gauge fx:id="gaugeDisk" layoutX="466.0" layoutY="46.0" lcdFont="LCD" prefHeight="152.0" prefWidth="149.0" skinType="LEVEL" title="Uso">
+            <Gauge fx:id="gaugeDisk" layoutX="466.0" layoutY="46.0" lcdFont="LCD" prefHeight="152.0" prefWidth="149.0" skinType="LEVEL" title="Disco Usado">
                <customFont>
                   <Font name="Consolas Bold" size="14.0" />
                </customFont>
@@ -113,8 +115,14 @@
                   <Color />
                </valueColor>
             </Gauge>
-            <TextField fx:id="textFieldDisksFormat" layoutX="58.0" layoutY="164.0" />
-            <TextField fx:id="textFieldDiskCapacity" layoutX="258.0" layoutY="164.0" />
+            <TextField fx:id="textFieldDisksFormat" alignment="CENTER" editable="false" layoutX="58.0" layoutY="164.0">
+               <font>
+                  <Font name="Consolas" size="14.0" />
+               </font></TextField>
+            <TextField fx:id="textFieldDiskCapacity" alignment="CENTER" editable="false" layoutX="258.0" layoutY="164.0">
+               <font>
+                  <Font name="Consolas" size="14.0" />
+               </font></TextField>
             <ChoiceBox fx:id="comboBoxDisks" layoutX="57.0" layoutY="85.0" prefHeight="25.0" prefWidth="350.0" />
             <Label layoutX="57.0" layoutY="60.0" text="Nombre">
                <font>

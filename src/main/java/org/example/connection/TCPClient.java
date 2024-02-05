@@ -105,7 +105,6 @@ public class TCPClient {
                     while (in.hasNextLine()) {
                         String message = in.nextLine();
                         lastMessage.set(message);
-                      //  System.out.println("En tcpClient" + message);
                     }
                 } catch (Exception ex) {
                     System.out.println("El servidor se ha desconectado.");

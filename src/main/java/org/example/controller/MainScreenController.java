@@ -6,11 +6,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
@@ -41,6 +47,8 @@ public class MainScreenController {
     public TextField textFieldDiskCapacity;
     @FXML
     public LineChart chartRed;
+    @FXML
+    public Label labelMbps;
 
     @FXML
     private Gauge gaugeRAM;
@@ -54,6 +62,7 @@ public class MainScreenController {
     @FXML
     private ScrollPane scrollPaneServers;
 
+    private XYChart.Series<String, Number> series;
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     public void init() {
@@ -86,13 +95,30 @@ public class MainScreenController {
 
 
     public void initialize() {
-//        gaugeRAM.setUnit("%");
-//        gaugeRAM.setTitle("RAM");
+
         scrollPaneServers.setContent(vBoxServers);
+        scrollPaneServers.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        comboBoxDisks.setValue("Seleccione un disco");
 
         gaugeRAM.setThreshold(75);
         gaugeRAM.setThresholdColor(Gauge.BRIGHT_COLOR);
         gaugeRAM.setThresholdVisible(true);
+        gaugeRAM.setBarColor(Color.GREEN);
+
+        gaugeCPU.setThreshold(75);
+        gaugeCPU.setThresholdColor(Gauge.BRIGHT_COLOR);
+        gaugeCPU.setThresholdVisible(true);
+        gaugeCPU.setBarColor(Color.GREEN);
+
+        CategoryAxis xAxis = (CategoryAxis) chartRed.getXAxis();
+        xAxis.setTickLabelsVisible(false);
+        xAxis.setTickMarkVisible(false);
+        chartRed.setCreateSymbols(false);
+        series = new XYChart.Series<>();
+        chartRed.getData().add(series);
+
+        gaugeDisk.setBarColor(Color.BLUE);
 
         new Thread(() -> {
             while (true) {
@@ -117,6 +143,8 @@ public class MainScreenController {
 
             double ramUsage = splitMessage.length > 0 && !splitMessage[0].isEmpty() ? Double.parseDouble(splitMessage[0]) : 0;
             double cpuUsage = splitMessage.length > 1 && !splitMessage[1].isEmpty() ? Double.parseDouble(splitMessage[1]) : 0;
+            double redSpeed = splitMessage.length > 3 && !splitMessage[3].isEmpty() ? Double.parseDouble(splitMessage[3]) : 0;
+
             String[] diskUsage = splitMessage.length > 2 && !splitMessage[2].isEmpty() ? splitMessage[2].replace("[", "").replace("]", "").split("#") : new String[0];
 
             Map<String, String[]> diskInfoMap = new HashMap<>();
@@ -153,7 +181,15 @@ public class MainScreenController {
                 gaugeRAM.setValue(ramUsage);
                 gaugeCPU.setValue(cpuUsage);
 
+
+                series.getData().add(new XYChart.Data<>(String.valueOf(System.currentTimeMillis()), redSpeed));
+                if (series.getData().size() > 11) {
+                    series.getData().remove(0);
+                }
+                labelMbps.setText(String.valueOf(redSpeed) + " Mbps");
+
             });
+
         }
     }
 
@@ -197,7 +233,7 @@ public class MainScreenController {
                 TCPClient tcpClient = new TCPClient(result[0], result[1], Integer.parseInt(result[2]));
             }).start();
 
-            //vBoxServers.setStyle("-fx-padding: 20;");
+            vBoxServers.setStyle("-fx-padding: 10 20;");
 
             Button serverButton = new Button(result[0]);
             serverButton.setMaxWidth(Double.MAX_VALUE);
@@ -208,8 +244,11 @@ public class MainScreenController {
                 executorService.submit(() -> updateGauges());
             });
             Platform.runLater(() -> {
-                vBoxServers.setSpacing(5);
+
+
+                vBoxServers.setSpacing(7);
                 vBoxServers.getChildren().add(serverButton);
+
             });
         }
     }

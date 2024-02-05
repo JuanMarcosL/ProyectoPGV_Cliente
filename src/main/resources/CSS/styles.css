@@ -1,5 +1,5 @@
 .servidores {
-    -fx-padding: 10;
+    /*-fx-padding: 10;*/
     -fx-font-size: 2em;
     -fx-border-color: #000000;
     -fx-background-color: #f4f4f4;
@@ -13,10 +13,14 @@
     -fx-background-insets: 0;
     -fx-text-alignment: center;
     -fx-transition: background-color 1s ease-in-out;
-    -fx-pref-height: 25;
+    -fx-height:5 ;
 }
 
-#addServer{
+.servidores:hover {
+    -fx-background-color:  #8093ea;
+}
+
+.addServerButton {
     -fx-padding: 10;
     -fx-font-size: 2em;
     -fx-border-color: #000000;
@@ -29,10 +33,4 @@
 }
 
 
-/*.servidores:hover {*/
-/*    -fx-background-color: #b45858;*/
-
-
-
-/*}*/
 
