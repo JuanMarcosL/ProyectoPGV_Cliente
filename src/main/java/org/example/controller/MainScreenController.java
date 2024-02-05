@@ -15,7 +15,10 @@ import javafx.stage.Stage;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,6 +50,9 @@ public class MainScreenController {
 
     @FXML
     private VBox vBoxServers;
+
+    @FXML
+    private ScrollPane scrollPaneServers;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
@@ -82,7 +88,9 @@ public class MainScreenController {
     public void initialize() {
 //        gaugeRAM.setUnit("%");
 //        gaugeRAM.setTitle("RAM");
-        gaugeRAM.setThreshold(65);
+        scrollPaneServers.setContent(vBoxServers);
+
+        gaugeRAM.setThreshold(75);
         gaugeRAM.setThresholdColor(Gauge.BRIGHT_COLOR);
         gaugeRAM.setThresholdVisible(true);
 
@@ -104,15 +112,54 @@ public class MainScreenController {
         System.out.println("En MainScreenController" + messageFromTCPClient);
 
         if (messageFromTCPClient != null && !messageFromTCPClient.isEmpty()) {
+
             String[] splitMessage = messageFromTCPClient.split(",");
+
             double ramUsage = splitMessage.length > 0 && !splitMessage[0].isEmpty() ? Double.parseDouble(splitMessage[0]) : 0;
             double cpuUsage = splitMessage.length > 1 && !splitMessage[1].isEmpty() ? Double.parseDouble(splitMessage[1]) : 0;
+            String[] diskUsage = splitMessage.length > 2 && !splitMessage[2].isEmpty() ? splitMessage[2].replace("[", "").replace("]", "").split("#") : new String[0];
+
+            Map<String, String[]> diskInfoMap = new HashMap<>();
+
+            for (int i = 0; i < diskUsage.length; i++) {
+
+                String[] disk = dividirDiscos(diskUsage[i]);
+
+                diskInfoMap.put(disk[0], new String[]{disk[1], disk[2], disk[3]});
+
+                Platform.runLater(() -> {
+                    if (!comboBoxDisks.getItems().contains(disk[0])) {
+                        comboBoxDisks.getItems().add(disk[0]);
+                    }
+                });
+            }
+
+            comboBoxDisks.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                // Obtener la información del disco seleccionado del HashMap
+                String[] diskInfo = diskInfoMap.get(newValue);
+
+                // Actualizar los campos de texto y el medidor con la información del disco seleccionado
+                textFieldDisksFormat.setText(diskInfo[0]);
+                double diskCapacity = Double.parseDouble(diskInfo[1]); // Asume que diskInfo[1] está en MB
+                double diskCapacityInGB = diskCapacity / 1024 / 1024 / 1024;
+                String diskCapacityInGBFormatted = String.format("%.2f GB", diskCapacityInGB);
+                textFieldDiskCapacity.setText(diskCapacityInGBFormatted);
+//                textFieldDiskCapacity.setText(diskInfo[1]);
+                gaugeDisk.setValue(Double.parseDouble(diskInfo[2]));
+            });
+
 
             Platform.runLater(() -> {
                 gaugeRAM.setValue(ramUsage);
                 gaugeCPU.setValue(cpuUsage);
+
             });
         }
+    }
+
+    public static String[] dividirDiscos(String discos) {
+        String[] discosDivididos = discos.split("_");
+        return discosDivididos;
     }
 
     public void addServer(ActionEvent actionEvent) {
@@ -150,18 +197,18 @@ public class MainScreenController {
                 TCPClient tcpClient = new TCPClient(result[0], result[1], Integer.parseInt(result[2]));
             }).start();
 
-            vBoxServers.setStyle("-fx-padding: 20;");
-            // Crea un nuevo botón y lo agrega al StackPane
+            //vBoxServers.setStyle("-fx-padding: 20;");
+
             Button serverButton = new Button(result[0]);
             serverButton.setMaxWidth(Double.MAX_VALUE);
-             serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
+            serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
 
             serverButton.setOnAction(event -> {
                 Platform.runLater(() -> serverButton.setStyle("-fx-background-color: #444444;"));
-                executorService.submit(()-> updateGauges());
+                executorService.submit(() -> updateGauges());
             });
             Platform.runLater(() -> {
-                vBoxServers.setSpacing(10);
+                vBoxServers.setSpacing(5);
                 vBoxServers.getChildren().add(serverButton);
             });
         }
@@ -173,4 +220,5 @@ public class MainScreenController {
         grid.add(textField, 1, row);
         return textField;
     }
+
 }
