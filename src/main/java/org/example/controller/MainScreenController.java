@@ -49,10 +49,8 @@ public class MainScreenController {
     public LineChart chartRed;
     @FXML
     public Label labelMbps;
-
     @FXML
     private Gauge gaugeRAM;
-
     @FXML
     private BorderPane borderPaneServers;
 
@@ -65,13 +63,6 @@ public class MainScreenController {
     private XYChart.Series<String, Number> series;
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    public void init() {
-//        gaugeRAM.setAlert(true);
-//        gaugeRAM.alert
-//        gaugeRAM.setTitle("RAM");
-//        gaugeRAM.setUnit("%");1
-
-    }
 
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("LogIn.fxml"));
@@ -81,7 +72,6 @@ public class MainScreenController {
         stageMainScreen.setScene(scene);
         stageMainScreen.setResizable(false);
         stageMainScreen.show();
-
     }
 
     public static Stage getStageMainScreen() {
@@ -93,110 +83,154 @@ public class MainScreenController {
         System.exit(0);
     }
 
+    @FXML
+    private void initialize() {
+        setupScrollPane();
+        setupComboBox();
+        setupGauges();
+        setupChart();
+        startUpdateThread();
+    }
 
-    public void initialize() {
-
+    private void setupScrollPane() {
         scrollPaneServers.setContent(vBoxServers);
         scrollPaneServers.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+    }
 
+    private void setupComboBox() {
         comboBoxDisks.setValue("Seleccione un disco");
+    }
 
-        gaugeRAM.setThreshold(75);
-        gaugeRAM.setThresholdColor(Gauge.BRIGHT_COLOR);
-        gaugeRAM.setThresholdVisible(true);
-        gaugeRAM.setBarColor(Color.GREEN);
+    private void setupGauges() {
+        setupGauge(gaugeRAM, Color.GREEN);
+        setupGauge(gaugeCPU, Color.GREEN);
+        gaugeDisk.setBarColor(Color.BLUE);
+    }
 
-        gaugeCPU.setThreshold(75);
-        gaugeCPU.setThresholdColor(Gauge.BRIGHT_COLOR);
-        gaugeCPU.setThresholdVisible(true);
-        gaugeCPU.setBarColor(Color.GREEN);
+    private void setupGauge(Gauge gauge, Color color) {
+        gauge.setThreshold(75);
+        gauge.setThresholdColor(Gauge.BRIGHT_COLOR);
+        gauge.setThresholdVisible(true);
+        gauge.setBarColor(color);
+    }
 
+    private void setupChart() {
         CategoryAxis xAxis = (CategoryAxis) chartRed.getXAxis();
         xAxis.setTickLabelsVisible(false);
         xAxis.setTickMarkVisible(false);
         chartRed.setCreateSymbols(false);
         series = new XYChart.Series<>();
         chartRed.getData().add(series);
+    }
 
-        gaugeDisk.setBarColor(Color.BLUE);
-
+    private void startUpdateThread() {
         new Thread(() -> {
             while (true) {
-                updateGauges();
-
-                try {
-                    Thread.sleep(1000); // Wait 1 second before the next update
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                actualizarIndicadores();
+                sleepOneSecond();
             }
         }).start();
     }
 
-    public void updateGauges() {
-        String messageFromTCPClient = TCPClient.getLastMessage();
-        System.out.println("En MainScreenController" + messageFromTCPClient);
-
-        if (messageFromTCPClient != null && !messageFromTCPClient.isEmpty()) {
-
-            String[] splitMessage = messageFromTCPClient.split(",");
-
-            double ramUsage = splitMessage.length > 0 && !splitMessage[0].isEmpty() ? Double.parseDouble(splitMessage[0]) : 0;
-            double cpuUsage = splitMessage.length > 1 && !splitMessage[1].isEmpty() ? Double.parseDouble(splitMessage[1]) : 0;
-            double redSpeed = splitMessage.length > 3 && !splitMessage[3].isEmpty() ? Double.parseDouble(splitMessage[3]) : 0;
-
-            String[] diskUsage = splitMessage.length > 2 && !splitMessage[2].isEmpty() ? splitMessage[2].replace("[", "").replace("]", "").split("#") : new String[0];
-
-            Map<String, String[]> diskInfoMap = new HashMap<>();
-
-            for (int i = 0; i < diskUsage.length; i++) {
-
-                String[] disk = dividirDiscos(diskUsage[i]);
-
-                diskInfoMap.put(disk[0], new String[]{disk[1], disk[2], disk[3]});
-
-                Platform.runLater(() -> {
-                    if (!comboBoxDisks.getItems().contains(disk[0])) {
-                        comboBoxDisks.getItems().add(disk[0]);
-                    }
-                });
-            }
-
-            comboBoxDisks.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                // Obtener la información del disco seleccionado del HashMap
-                String[] diskInfo = diskInfoMap.get(newValue);
-
-                // Actualizar los campos de texto y el medidor con la información del disco seleccionado
-                textFieldDisksFormat.setText(diskInfo[0]);
-                double diskCapacity = Double.parseDouble(diskInfo[1]); // Asume que diskInfo[1] está en MB
-                double diskCapacityInGB = diskCapacity / 1024 / 1024 / 1024;
-                String diskCapacityInGBFormatted = String.format("%.2f GB", diskCapacityInGB);
-                textFieldDiskCapacity.setText(diskCapacityInGBFormatted);
-//                textFieldDiskCapacity.setText(diskInfo[1]);
-                gaugeDisk.setValue(Double.parseDouble(diskInfo[2]));
-            });
-
-
-            Platform.runLater(() -> {
-                gaugeRAM.setValue(ramUsage);
-                gaugeCPU.setValue(cpuUsage);
-
-
-                series.getData().add(new XYChart.Data<>(String.valueOf(System.currentTimeMillis()), redSpeed));
-                if (series.getData().size() > 11) {
-                    series.getData().remove(0);
-                }
-                labelMbps.setText(String.valueOf(redSpeed) + " Mbps");
-
-            });
-
+    private void sleepOneSecond() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
+
+
+  public void actualizarIndicadores() {
+    String mensajeDeTCPClient = TCPClient.getLastMessage();
+    if (esMensajeValido(mensajeDeTCPClient)) {
+        procesarMensaje(mensajeDeTCPClient);
+    }
+}
+
+private boolean esMensajeValido(String mensaje) {
+    return mensaje != null && !mensaje.isEmpty();
+}
+
+private void procesarMensaje(String mensaje) {
+    String[] mensajeDividido = mensaje.split(",");
+    double usoRam = parsearDoubleODefault(mensajeDividido, 0, 0);
+    double usoCpu = parsearDoubleODefault(mensajeDividido, 1, 0);
+    double velocidadRed = parsearDoubleODefault(mensajeDividido, 3, 0);
+    actualizarInformacionDiscos(mensajeDividido);
+    actualizarUIIndicadores(usoRam, usoCpu, velocidadRed);
+}
+
+private double parsearDoubleODefault(String[] array, int indice, double valorPorDefecto) {
+    return array.length > indice && !array[indice].isEmpty() ? Double.parseDouble(array[indice]) : valorPorDefecto;
+}
+
+private void actualizarInformacionDiscos(String[] mensajeDividido) {
+    String[] usoDisco = parsearUsoDisco(mensajeDividido);
+    Map<String, String[]> mapaInfoDisco = construirMapaInfoDisco(usoDisco);
+    agregarDiscosAComboBox(mapaInfoDisco);
+    configurarListenerSeleccionDisco(mapaInfoDisco);
+}
+
+private String[] parsearUsoDisco(String[] mensajeDividido) {
+    return mensajeDividido.length > 2 && !mensajeDividido[2].isEmpty() ? mensajeDividido[2].replace("[", "").replace("]", "").split("#") : new String[0];
+}
+
+private Map<String, String[]> construirMapaInfoDisco(String[] usoDisco) {
+    Map<String, String[]> mapaInfoDisco = new HashMap<>();
+    for (String itemUsoDisco : usoDisco) {
+        String[] disco = dividirDiscos(itemUsoDisco);
+        mapaInfoDisco.put(disco[0], new String[]{disco[1], disco[2], disco[3]});
+    }
+    return mapaInfoDisco;
+}
 
     public static String[] dividirDiscos(String discos) {
         String[] discosDivididos = discos.split("_");
         return discosDivididos;
     }
+
+   private void agregarDiscosAComboBox(Map<String, String[]> mapaInfoDisco) {
+    Platform.runLater(() -> {
+        for (String nombreDisco : mapaInfoDisco.keySet()) {
+            if (!comboBoxDisks.getItems().contains(nombreDisco)) {
+                comboBoxDisks.getItems().add(nombreDisco);
+            }
+        }
+    });
+}
+
+private void configurarListenerSeleccionDisco(Map<String, String[]> mapaInfoDisco) {
+    comboBoxDisks.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, nuevoValor) -> {
+        String[] infoDisco = mapaInfoDisco.get(nuevoValor);
+        actualizarCamposDiscoYMedidor(infoDisco);
+    });
+}
+
+private void actualizarCamposDiscoYMedidor(String[] infoDisco) {
+    if (infoDisco != null) {
+        Platform.runLater(() -> {
+            textFieldDisksFormat.setText(infoDisco[0]);
+            double capacidadDisco = Double.parseDouble(infoDisco[1]);
+            String capacidadDiscoEnGBFormateada = String.format("%.2f GB", capacidadDisco / 1024 / 1024 / 1024);
+            textFieldDiskCapacity.setText(capacidadDiscoEnGBFormateada);
+            gaugeDisk.setValue(Double.parseDouble(infoDisco[2]));
+        });
+    }
+}
+
+private void actualizarUIIndicadores(double usoRam, double usoCpu, double velocidadRed) {
+    Platform.runLater(() -> {
+        gaugeRAM.setValue(usoRam);
+        gaugeCPU.setValue(usoCpu);
+        series.getData().add(new XYChart.Data<>(String.valueOf(System.currentTimeMillis()), velocidadRed));
+        if (series.getData().size() > 11) {
+            series.getData().remove(0);
+        }
+        labelMbps.setText(String.valueOf(velocidadRed) + " Mbps");
+    });
+}
+
 
     public void addServer(ActionEvent actionEvent) {
         showDialogAddServer(actionEvent);
@@ -241,7 +275,7 @@ public class MainScreenController {
 
             serverButton.setOnAction(event -> {
                 Platform.runLater(() -> serverButton.setStyle("-fx-background-color: #444444;"));
-                executorService.submit(() -> updateGauges());
+                executorService.submit(() -> actualizarIndicadores());
             });
             Platform.runLater(() -> {
 
