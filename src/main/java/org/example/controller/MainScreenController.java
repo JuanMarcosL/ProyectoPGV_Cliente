@@ -8,15 +8,12 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
@@ -65,13 +62,7 @@ public class MainScreenController {
     private XYChart.Series<String, Number> series;
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    public void init() {
-//        gaugeRAM.setAlert(true);
-//        gaugeRAM.alert
-//        gaugeRAM.setTitle("RAM");
-//        gaugeRAM.setUnit("%");1
-
-    }
+    private static Thread currentThread;
 
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("LogIn.fxml"));
@@ -81,7 +72,6 @@ public class MainScreenController {
         stageMainScreen.setScene(scene);
         stageMainScreen.setResizable(false);
         stageMainScreen.show();
-
     }
 
     public static Stage getStageMainScreen() {
@@ -119,22 +109,10 @@ public class MainScreenController {
         chartRed.getData().add(series);
 
         gaugeDisk.setBarColor(Color.BLUE);
-
-        new Thread(() -> {
-            while (true) {
-                updateGauges();
-
-                try {
-                    Thread.sleep(1000); // Wait 1 second before the next update
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
-    public void updateGauges() {
-        String messageFromTCPClient = TCPClient.getLastMessage();
+    public void updateGauges(String serverMessage) {
+        String messageFromTCPClient = serverMessage;
         System.out.println("En MainScreenController" + messageFromTCPClient);
 
         if (messageFromTCPClient != null && !messageFromTCPClient.isEmpty()) {
@@ -149,14 +127,22 @@ public class MainScreenController {
 
             Map<String, String[]> diskInfoMap = new HashMap<>();
 
+            boolean disksChanged = false;
+
             for (int i = 0; i < diskUsage.length; i++) {
-
                 String[] disk = dividirDiscos(diskUsage[i]);
-
                 diskInfoMap.put(disk[0], new String[]{disk[1], disk[2], disk[3]});
+                if (!comboBoxDisks.getItems().contains(disk[0])) {
+                    disksChanged = true;
+                    break;
+                }
+            }
 
+            if (disksChanged || comboBoxDisks.getItems().isEmpty()) {
                 Platform.runLater(() -> {
-                    if (!comboBoxDisks.getItems().contains(disk[0])) {
+                    comboBoxDisks.getItems().clear();
+                    for (int i = 0; i < diskUsage.length; i++) {
+                        String[] disk = dividirDiscos(diskUsage[i]);
                         comboBoxDisks.getItems().add(disk[0]);
                     }
                 });
@@ -167,13 +153,15 @@ public class MainScreenController {
                 String[] diskInfo = diskInfoMap.get(newValue);
 
                 // Actualizar los campos de texto y el medidor con la información del disco seleccionado
-                textFieldDisksFormat.setText(diskInfo[0]);
-                double diskCapacity = Double.parseDouble(diskInfo[1]); // Asume que diskInfo[1] está en MB
-                double diskCapacityInGB = diskCapacity / 1024 / 1024 / 1024;
-                String diskCapacityInGBFormatted = String.format("%.2f GB", diskCapacityInGB);
-                textFieldDiskCapacity.setText(diskCapacityInGBFormatted);
+                if (diskInfo != null) {
+                    textFieldDisksFormat.setText(diskInfo[0]);
+                    double diskCapacity = Double.parseDouble(diskInfo[1]); // Asume que diskInfo[1] está en MB
+                    double diskCapacityInGB = diskCapacity / 1024 / 1024 / 1024;
+                    String diskCapacityInGBFormatted = String.format("%.2f GB", diskCapacityInGB);
+                    textFieldDiskCapacity.setText(diskCapacityInGBFormatted);
 //                textFieldDiskCapacity.setText(diskInfo[1]);
-                gaugeDisk.setValue(Double.parseDouble(diskInfo[2]));
+                    gaugeDisk.setValue(Double.parseDouble(diskInfo[2]));
+                }
             });
 
 
@@ -229,8 +217,9 @@ public class MainScreenController {
 
         String[] result = dialog.showAndWait().orElse(null);
         if (result != null) {
+            String host = result[1].equalsIgnoreCase("localhost") ? "127.0.0.1" : result[1];
             new Thread(() -> {
-                TCPClient tcpClient = new TCPClient(result[0], result[1], Integer.parseInt(result[2]));
+                TCPClient tcpClient = new TCPClient(result[0], host, Integer.parseInt(result[2]));
             }).start();
 
             vBoxServers.setStyle("-fx-padding: 10 20;");
@@ -239,16 +228,49 @@ public class MainScreenController {
             serverButton.setMaxWidth(Double.MAX_VALUE);
             serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
 
+            // Asignar la dirección IP como atributo personalizado del botón
+            serverButton.setUserData(result[1]);
+
+            vBoxServers.setSpacing(7);
+            vBoxServers.getChildren().add(serverButton);
+
+            // Limpiar los valores de los discos
+            gaugeDisk.setValue(0);
+            textFieldDisksFormat.clear();
+            textFieldDiskCapacity.clear();
+
+            // Restablecer el valor predeterminado del ComboBox
+            comboBoxDisks.getItems().clear();
+            comboBoxDisks.setValue("Seleccione un disco");
+
             serverButton.setOnAction(event -> {
-                Platform.runLater(() -> serverButton.setStyle("-fx-background-color: #444444;"));
-                executorService.submit(() -> updateGauges());
-            });
-            Platform.runLater(() -> {
+                // Detener el hilo de ejecución anterior (si existe)
+                if (currentThread != null && currentThread.isAlive()) {
+                    currentThread.interrupt();
+                }
+                // Iniciar un nuevo hilo de ejecución para recibir mensajes del servidor
+                currentThread = new Thread(() -> {
 
-
-                vBoxServers.setSpacing(7);
-                vBoxServers.getChildren().add(serverButton);
-
+                    // Recuperar la dirección IP del botón
+                    String ipAddress = (String) serverButton.getUserData();
+                    while (!Thread.currentThread().isInterrupted()) {
+                        // Obtener los mensajes correspondientes a la dirección IP
+                        Map<String, String> serverMessages = TCPClient.getServerMessages();
+                        String serverMessage = serverMessages.get(ipAddress);
+                        if (serverMessage != null) {
+                            // Actualizar la interfaz con los valores del servidor
+                            Platform.runLater(() -> {
+                                updateGauges(serverMessage);
+                            });
+                        }
+                        try {
+                            Thread.sleep(1000); // Esperar 1 segundo antes de la próxima actualización
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+                        }
+                    }
+                });
+                currentThread.start();
             });
         }
     }
