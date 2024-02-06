@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.example.AppMain;
-import org.example.connection.TCPClient;
 
 import java.io.IOException;
 

@@ -18,7 +18,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="box" prefHeight="777.0" prefWidth="1106.0" style="-fx-background-color: #444; -fx-background-radius: 20px;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.MainScreenController">
+<AnchorPane id="box" prefHeight="777.0" prefWidth="1106.0" style="-fx-background-color: #444; -fx-background-radius: 20px;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.MainScreenController2">
         <children>
             <Pane layoutX="38.0" layoutY="47.0" prefHeight="710.0" prefWidth="319.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;">
                 <children>
@@ -107,7 +107,7 @@
       </Pane>
       <Pane layoutX="430.0" layoutY="531.0" prefHeight="220.0" prefWidth="663.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;">
          <children>
-            <Gauge fx:id="gaugeDisk" layoutX="466.0" layoutY="46.0" lcdFont="LCD" prefHeight="152.0" prefWidth="149.0" skinType="LEVEL" title="Disco Usado">
+            <Gauge fx:id="gaugeDisk" layoutX="427.0" layoutY="46.0" lcdFont="LCD" prefHeight="152.0" prefWidth="188.0" skinType="LEVEL" title="Disco Usado">
                <customFont>
                   <Font name="Consolas Bold" size="14.0" />
                </customFont>
@@ -123,7 +123,7 @@
                <font>
                   <Font name="Consolas" size="14.0" />
                </font></TextField>
-            <ChoiceBox fx:id="comboBoxDisks" layoutX="57.0" layoutY="85.0" prefHeight="25.0" prefWidth="350.0" />
+            <ChoiceBox fx:id="comboBoxDisks" layoutX="57.0" layoutY="85.0" prefHeight="25.0" prefWidth="319.0" />
             <Label layoutX="57.0" layoutY="60.0" text="Nombre">
                <font>
                   <Font name="Consolas Bold" size="14.0" />
