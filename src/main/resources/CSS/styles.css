@@ -13,23 +13,44 @@
     -fx-background-insets: 0;
     -fx-text-alignment: center;
     -fx-transition: background-color 1s ease-in-out;
-    -fx-height:5 ;
+    -fx-height: 5;
 }
 
 .servidores:hover {
-    -fx-background-color:  #8093ea;
+    -fx-background-color: #094baf;
 }
 
-.addServerButton {
-    -fx-padding: 10;
-    -fx-font-size: 2em;
-    -fx-border-color: #000000;
-    -fx-cursor: hand;
-    -fx-text-fill: #000000;
-    -fx-border-width: 1px;
-    -fx-border-radius: 5px;
+/*.botonazo {*/
+
+/*    */
+/*    -fx-font-size: 1em;*/
+/*    -fx-border-color: #000000;*/
+/*    -fx-cursor: hand;*/
+/*    -fx-text-fill: #000000;*/
+/*    -fx-border-width: 1px;*/
+/*    -fx-border-radius: 5px;*/
 
 
+/*}*/
+
+.botonazo {
+
+    -fx-background-color: linear-gradient(to bottom, #23946e, #16594b);
+
+
+    /*-fx-background-color: #23946e; !* Color de fondo *!*/
+    -fx-text-fill: white; /* Color del texto */
+    -fx-font-size: 16px; /* Tamaño de la fuente */
+    -fx-font-weight: bold; /* Peso de la fuente */
+    /*-fx-padding: 10px 20px; !* Relleno *!*/
+    -fx-border-radius: 4px; /* Radio de borde */
+    -fx-background-radius: 4px; /* Radio de fondo */
+    -fx-cursor: hand; /* Cursor */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1); /* Efecto de sombra */
+}
+
+.button-selected {
+    -fx-background-color: rgba(24, 57, 252, 0.5);
 }
 
 

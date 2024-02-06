@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
@@ -208,6 +209,11 @@ public class MainScreenController {
         ButtonType addButtonType = new ButtonType("Añadir", ButtonType.OK.getButtonData());
         dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
 
+        Node addButton = dialog.getDialogPane().lookupButton(addButtonType);
+        if (addButton instanceof Button) {
+            ((Button) addButton).getStyleClass().add("botonazo");
+        }
+
         dialog.setResultConverter(buttonType -> {
             if (buttonType == addButtonType) {
                 return new String[]{alias.getText(), ip.getText(), puerto.getText()};
@@ -222,7 +228,8 @@ public class MainScreenController {
                 TCPClient tcpClient = new TCPClient(result[0], host, Integer.parseInt(result[2]));
             }).start();
 
-            vBoxServers.setStyle("-fx-padding: 10 20;");
+            vBoxServers.setStyle("-fx-padding: 10 30 10 20; -fx-background-color: #555;");
+
 
             Button serverButton = new Button(result[0]);
             serverButton.setMaxWidth(Double.MAX_VALUE);
@@ -232,16 +239,8 @@ public class MainScreenController {
             serverButton.setUserData(result[1]);
 
             vBoxServers.setSpacing(7);
+
             vBoxServers.getChildren().add(serverButton);
-
-            // Limpiar los valores de los discos
-            gaugeDisk.setValue(0);
-            textFieldDisksFormat.clear();
-            textFieldDiskCapacity.clear();
-
-            // Restablecer el valor predeterminado del ComboBox
-            comboBoxDisks.getItems().clear();
-            comboBoxDisks.setValue("Seleccione un disco");
 
             serverButton.setOnAction(event -> {
                 // Detener el hilo de ejecución anterior (si existe)
@@ -271,6 +270,22 @@ public class MainScreenController {
                     }
                 });
                 currentThread.start();
+
+                Platform.runLater(() -> {
+                    gaugeDisk.setValue(0);
+                    textFieldDisksFormat.clear();
+                    textFieldDiskCapacity.clear();
+                    comboBoxDisks.setValue("Seleccione un disco");
+
+                    for (Node node : vBoxServers.getChildren()) {
+                        if (node instanceof Button) {
+                            node.getStyleClass().remove("button-selected");
+                        }
+                    }
+
+                    // Agregar la clase CSS 'button-selected' al botón actual
+                    serverButton.getStyleClass().add("button-selected");
+                });
             });
         }
     }

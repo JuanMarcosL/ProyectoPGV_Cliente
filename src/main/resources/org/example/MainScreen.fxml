@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import eu.hansolo.medusa.Gauge?>
+<?import java.lang.String?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
@@ -18,17 +19,21 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="box" prefHeight="777.0" prefWidth="1106.0" style="-fx-background-color: #444; -fx-background-radius: 20px;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.MainScreenController">
+<AnchorPane id="box" prefHeight="777.0" prefWidth="1106.0" style="-fx-background-color: #04030F; -fx-background-radius: 20px;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.MainScreenController">
         <children>
             <Pane layoutX="38.0" layoutY="47.0" prefHeight="710.0" prefWidth="319.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px; -fx-border-color: #1f4ef8; -fx-border-width: 2px; -fx-border-radius: 20px;">
                 <children>
-                    <ScrollPane fx:id="scrollPaneServers" layoutX="19.0" layoutY="279.0" prefHeight="355.0" prefWidth="282.0" style="-fx-background-color: #ffffff;" stylesheets="@../../CSS/styles.css">
+                    <ScrollPane fx:id="scrollPaneServers" layoutX="19.0" layoutY="279.0" prefHeight="355.0" prefWidth="282.0" style="-fx-background-color: #555;" stylesheets="@../../CSS/styles.css">
                <content>
-                            <VBox fx:id="vBoxServers" prefHeight="349.0" prefWidth="274.0" />
+                            <VBox fx:id="vBoxServers" prefHeight="355.0" prefWidth="279.0" style="-fx-background-color: #555;" />
                </content>
                     </ScrollPane>
                  
-                    <Button id="addServer" fx:id="addServerButton" alignment="CENTER" contentDisplay="CENTER" layoutX="111.0" layoutY="662.0" mnemonicParsing="false" onAction="#addServer" text="Añadir Servidor" />
+                    <Button id="addServer" fx:id="addServerButton" alignment="CENTER" contentDisplay="CENTER" layoutX="66.0" layoutY="642.0" mnemonicParsing="false" onAction="#addServer" prefHeight="54.0" prefWidth="188.0" stylesheets="@../../CSS/styles.css" text="Añadir Servidor">
+               <styleClass>
+                  <String fx:value="botonAddServer" />
+                  <String fx:value="botonazo" />
+               </styleClass></Button>
                     <Label alignment="CENTER" layoutX="40.0" layoutY="220.0" prefHeight="17.0" prefWidth="239.0" text="Servidores" textAlignment="CENTER">
                         <font>
                             <Font name="Consolas" size="30.0" />
