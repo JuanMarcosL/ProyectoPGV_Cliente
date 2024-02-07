@@ -581,7 +581,7 @@ public class MainScreenController {
             File outDir = new File("src/main/resources/jasperoutput");
             outDir.mkdirs();
 
-            JasperExportManager.exportReportToPdfFile(jasperPrint, "src/main/resources/jasperoutput/EmailsReport.pdf");
+            JasperExportManager.exportReportToPdfFile(jasperPrint, "src/main/resources/jasperoutput/ReporteServidores.pdf");
 
             System.out.println("Informe generado con éxito en la ruta: " + outDir.getPath() + " /EmailsReport.pdf");
             // Mostrar el reporte en un JasperViewer

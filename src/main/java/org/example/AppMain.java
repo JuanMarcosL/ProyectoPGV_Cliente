@@ -20,22 +20,22 @@ public class AppMain extends Application {
 
     public static void main(String[] args) {
 
-
         String nombreArchivo = "src/main/resources/CSV/reporte.csv";
         File archivo = new File(nombreArchivo);
 
         try {
-            // Crear el archivo si no existe
-            if (!archivo.exists()) {
-                archivo.createNewFile();
+            // Si el archivo existe, eliminarlo
+            if (archivo.exists()) {
+                archivo.delete();
             }
+
+            // Crear el archivo nuevamente
+            archivo.createNewFile();
 
             // Ahora que el archivo existe, abrirlo para escribir
             try (FileWriter archivoCSV = new FileWriter(nombreArchivo, true)) {
-                // Si el archivo está vacío, escribir la cabecera
-                if (archivo.length() == 0) {
-                    archivoCSV.append("alias,alerta,valor\n");
-                }
+                // Como el archivo es nuevo, escribir la cabecera
+                archivoCSV.append("alias,alerta,valor\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
