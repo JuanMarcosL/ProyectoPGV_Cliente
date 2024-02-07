@@ -3,6 +3,9 @@ module org.example.monitoreoservidores {
     requires javafx.fxml;
     requires eu.hansolo.medusa;
     requires com.github.oshi;
+    requires jasperreports;
+    requires java.sql;
+    requires java.desktop;
 
 
     opens org.example to javafx.fxml;

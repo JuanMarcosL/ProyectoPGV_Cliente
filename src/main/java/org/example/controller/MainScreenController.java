@@ -23,10 +23,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRCsvDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
 
+import javax.swing.*;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -76,6 +83,8 @@ public class MainScreenController {
     private ContextMenu contextMenu;
     private boolean menuOpen = false;
 
+    private String aliasServidor = null;
+
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("LogIn.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
@@ -117,6 +126,7 @@ public class MainScreenController {
         gaugeDisk.setBarColor(Color.BLUE);
 
         contextMenu = new ContextMenu();
+        MenuItem generarReporte = new MenuItem("Generar reporte");
         MenuItem cerrarSesion = new MenuItem("Cerrar sesión");
         cerrarSesion.setOnAction(event -> {
             boolean confirmed = showConfirmationDialog("Se cerrará la sesión actual", "¿Estás seguro?");
@@ -133,8 +143,10 @@ public class MainScreenController {
                 }
             }
         });
-        contextMenu.getItems().addAll(cerrarSesion);
+        contextMenu.getItems().addAll(generarReporte, cerrarSesion);
         contextMenu.setOnHidden(event -> menuOpen = false);
+
+        generarReporte.setOnAction(this::generarReporte);
     }
 
     public void updateGauges(String serverMessage) {
@@ -148,6 +160,16 @@ public class MainScreenController {
             double ramUsage = splitMessage.length > 0 && !splitMessage[0].isEmpty() ? Double.parseDouble(splitMessage[0]) : 0;
             double cpuUsage = splitMessage.length > 1 && !splitMessage[1].isEmpty() ? Double.parseDouble(splitMessage[1]) : 0;
             double redSpeed = splitMessage.length > 3 && !splitMessage[3].isEmpty() ? Double.parseDouble(splitMessage[3]) : 0;
+
+            if (ramUsage > 75) {
+                generarArchivoCSV(aliasServidor, "RAM", ramUsage);
+            }
+            if (cpuUsage > 10) {
+                generarArchivoCSV(aliasServidor, "CPU", cpuUsage);
+            }
+            if (redSpeed < 10) {
+                generarArchivoCSV(aliasServidor, "Red", redSpeed);
+            }
 
             String[] diskUsage = splitMessage.length > 2 && !splitMessage[2].isEmpty() ? splitMessage[2].replace("[", "").replace("]", "").split("#") : new String[0];
 
@@ -336,6 +358,7 @@ public class MainScreenController {
                                     Map<String, String> serverMessages = TCPClient.getServerMessages();
                                     String serverMessage = serverMessages.get(ipAddress);
                                     if (serverMessage != null) {
+                                        aliasServidor = serverButton.getText();
                                         // Actualizar la interfaz con los valores del servidor
                                         Platform.runLater(() -> {
                                             updateGauges(serverMessage);
@@ -500,6 +523,80 @@ public class MainScreenController {
         if (confirmed) {
             Platform.exit();
             System.exit(0);
+        }
+    }
+
+    public void generarArchivoCSV(String aliasServidor, String tipoDato, double valor) {
+        String nombreArchivo = "src/main/resources/CSV/reporte.csv";
+        File archivo = new File(nombreArchivo);
+        FileWriter archivoCSV = null;
+
+        try {
+            archivoCSV = new FileWriter(nombreArchivo, true);
+
+
+            // Escribir los datos en el archivo
+            archivoCSV.append(aliasServidor);
+            archivoCSV.append(",");
+            archivoCSV.append(tipoDato);
+            archivoCSV.append(",");
+            archivoCSV.append(String.valueOf(valor));
+            archivoCSV.append("\n");
+
+            System.out.println("CSV generado exitosamente");
+
+        } catch (IOException e) {
+            System.out.println("Error al escribir en el archivo CSV");
+            e.printStackTrace();
+        } finally {
+            try {
+                archivoCSV.flush();
+                archivoCSV.close();
+            } catch (IOException e) {
+                System.out.println("Error al cerrar el archivo CSV");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void generarReporte(ActionEvent actionEvent) {
+        try {
+            // Cargar el archivo .jasper
+            String reportSrcFile = "src/main/resources/Jasper/reporte.jrxml";
+            JasperReport jasperReport = JasperCompileManager.compileReport(reportSrcFile);
+
+            // Crear el data source
+            String csvPath = "src/main/resources/CSV/reporte.csv";
+            JRCsvDataSource dataSource = new JRCsvDataSource(csvPath);
+            dataSource.setUseFirstRowAsHeader(true);
+            dataSource.setFieldDelimiter(',');
+            dataSource.setRecordDelimiter("\n");
+
+            // Crear los parámetros del reporte
+            Map<String, Object> parameters = new HashMap<>();
+
+            // Llenar el reporte
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+
+            File outDir = new File("src/main/resources/jasperoutput");
+            outDir.mkdirs();
+
+            JasperExportManager.exportReportToPdfFile(jasperPrint, "src/main/resources/jasperoutput/EmailsReport.pdf");
+
+            System.out.println("Informe generado con éxito en la ruta: " + outDir.getPath() + " /EmailsReport.pdf");
+            // Mostrar el reporte en un JasperViewer
+            try {
+                JasperViewer jasperViewer = new JasperViewer(jasperPrint, false);
+                jasperViewer.setVisible(true);
+                jasperViewer.setTitle("Informe de Servidores");
+                jasperViewer.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                jasperViewer.toFront();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } catch (JRException e) {
+            e.printStackTrace();
         }
     }
 }

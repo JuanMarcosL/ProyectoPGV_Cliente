@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.6.final using JasperReports Library version 6.20.6-5c96b6aa8a39ac1dc6b6bea4b81168e16dd39231  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="alertas" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20"
+              topMargin="20" bottomMargin="20" uuid="dd5b57c1-68f2-4609-9588-662450085dc4">
+    <queryString>
+        <![CDATA[]]>
+    </queryString>
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <title>
+        <band height="92" splitType="Stretch">
+            <staticText>
+                <reportElement mode="Opaque" x="0" y="30" width="560" height="30" backcolor="#FFFFFF"
+                               uuid="f92eaf73-3f5e-490c-a55d-f91298003bdc"/>
+                <box>
+                    <pen lineWidth="0.5" lineColor="#1F4EF8"/>
+                </box>
+                <textElement textAlignment="Center">
+                    <font fontName="Consolas" size="24" isBold="true" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Monitoreo de Servidores]]></text>
+            </staticText>
+        </band>
+    </title>
+    <columnHeader>
+        <band height="67" splitType="Stretch">
+            <staticText>
+                <reportElement x="0" y="20" width="170" height="30" uuid="efef687a-93c9-42d5-a1bb-9afd48f419e4"/>
+                <textElement textAlignment="Center">
+                    <font fontName="Consolas" size="16"/>
+                </textElement>
+                <text><![CDATA[Nombre del Servidor]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" x="220" y="18" width="140" height="30"
+                               uuid="d8479d2c-775a-477c-835e-e99b8ae55260"/>
+                <textElement textAlignment="Center" rotation="None">
+                    <font fontName="consolas&#xD;&#xA;" size="16"/>
+                </textElement>
+                <text><![CDATA[Tipo de Alerta]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="430" y="20" width="100" height="30" uuid="c00830e8-1acc-40eb-8bfd-2c5f85318d2f"/>
+                <textElement textAlignment="Center">
+                    <font fontName="Consolas" size="16"/>
+                </textElement>
+                <text><![CDATA[Valor]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="170" height="20"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{alias}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="220" y="0" width="140" height="20"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{alerta}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="430" y="0" width="100" height="20"/>
+                <textFieldExpression class="java.lang.Double"><![CDATA[$F{valor}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    <columnFooter>
+        <band height="45" splitType="Stretch"/>
+    </columnFooter>
+    <pageFooter>
+        <band height="54" splitType="Stretch"/>
+    </pageFooter>
+    <summary>
+        <band height="42" splitType="Stretch"/>
+    </summary>
+</jasperReport>
