@@ -26,6 +26,7 @@ import javafx.util.Duration;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -258,7 +259,6 @@ public class MainScreenController {
 
                 try {
                     host = result[1].equalsIgnoreCase("localhost") ? "127.0.0.1" : result[1];
-
                     validateServerData(result[0], host, result[2]);
                     validData = true;
                     if (testConnection(host, Integer.parseInt(result[2]))) {
@@ -269,6 +269,103 @@ public class MainScreenController {
                         alert.setHeaderText(null);
                         alert.setContentText("Se ha establecido una conexión con el servidor.");
                         alert.showAndWait();
+                        String[] finalResult = result;
+                        String finalHost = host;
+                        new Thread(() -> {
+                            TCPClient tcpClient = new TCPClient(finalResult[0], finalHost, Integer.parseInt(finalResult[2]));
+                        }).start();
+
+                        vBoxServers.setStyle("-fx-padding: 10 30 10 20; -fx-background-color: #555;");
+
+
+                        Button serverButton = new Button(result[0]);
+                        serverButton.setMaxWidth(Double.MAX_VALUE);
+                        serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
+
+                        // Asignar la dirección IP como atributo personalizado del botón
+                        serverButton.setUserData(host);
+
+                        vBoxServers.setSpacing(7);
+
+                        vBoxServers.getChildren().add(serverButton);
+
+
+                        ContextMenu contextMenu = new ContextMenu();
+                        MenuItem deleteItem = new MenuItem("Eliminar servidor");
+                        contextMenu.getItems().add(deleteItem);
+
+                        // Establecer el menú contextual en el botón del servidor
+                        serverButton.setContextMenu(contextMenu);
+
+                        // Agregar un manejador de eventos al elemento de menú
+                        String finalHost1 = host;
+
+
+                        deleteItem.setOnAction(event -> {
+
+                            if (serverButton.getStyleClass().contains("button-selected")) {
+                                // Mostrar un cuadro de diálogo de error
+                                Alert alerta = new Alert(Alert.AlertType.ERROR);
+                                alerta.setTitle("Error");
+                                alerta.setHeaderText("No se puede eliminar el servidor");
+                                alerta.setContentText("No puedes eliminar este servidor porque se está visualizando actualmente");
+                                alerta.showAndWait();
+                            } else {
+
+                                boolean confirmed = showConfirmationDialog("Estás a punto de eliminar el servidor", "¿Estás seguro de que quieres continuar?");
+
+                                if (confirmed) {
+                                    vBoxServers.getChildren().remove(serverButton);
+                                    TCPClient.removeServerMessage(finalHost1);
+                                }
+                            }
+                        });
+
+                        serverButton.setOnAction(event -> {
+                            // Detener el hilo de ejecución anterior (si existe)
+                            if (currentThread != null && currentThread.isAlive()) {
+                                currentThread.interrupt();
+                            }
+                            // Iniciar un nuevo hilo de ejecución para recibir mensajes del servidor
+                            currentThread = new Thread(() -> {
+
+                                // Recuperar la dirección IP del botón
+                                String ipAddress = (String) serverButton.getUserData();
+                                while (!Thread.currentThread().isInterrupted()) {
+                                    // Obtener los mensajes correspondientes a la dirección IP
+                                    Map<String, String> serverMessages = TCPClient.getServerMessages();
+                                    String serverMessage = serverMessages.get(ipAddress);
+                                    if (serverMessage != null) {
+                                        // Actualizar la interfaz con los valores del servidor
+                                        Platform.runLater(() -> {
+                                            updateGauges(serverMessage);
+                                        });
+                                    }
+                                    try {
+                                        Thread.sleep(1000); // Esperar 1 segundo antes de la próxima actualización
+                                    } catch (InterruptedException e) {
+                                        Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+                                    }
+                                }
+                            });
+                            currentThread.start();
+
+                            Platform.runLater(() -> {
+                                gaugeDisk.setValue(0);
+                                textFieldDisksFormat.clear();
+                                textFieldDiskCapacity.clear();
+                                comboBoxDisks.setValue("Seleccione un disco");
+
+                                for (Node node : vBoxServers.getChildren()) {
+                                    if (node instanceof Button) {
+                                        node.getStyleClass().remove("button-selected");
+                                    }
+                                }
+
+                                // Agregar la clase CSS 'button-selected' al botón actual
+                                serverButton.getStyleClass().add("button-selected");
+                            });
+                        });
                     } else {
                         throw new Exception("No se pudo establecer una conexión con el servidor.");
                     }
@@ -284,107 +381,6 @@ public class MainScreenController {
                 break; // Si el usuario canceló el diálogo, romper el bucle
             }
         } while (!validData);
-        if (validData) {
-
-            String[] finalResult = result;
-            String finalHost = host;
-            new Thread(() -> {
-                TCPClient tcpClient = new TCPClient(finalResult[0], finalHost, Integer.parseInt(finalResult[2]));
-            }).start();
-
-            vBoxServers.setStyle("-fx-padding: 10 30 10 20; -fx-background-color: #555;");
-
-
-            Button serverButton = new Button(result[0]);
-            serverButton.setMaxWidth(Double.MAX_VALUE);
-            serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
-
-            // Asignar la dirección IP como atributo personalizado del botón
-            serverButton.setUserData(host);
-
-            vBoxServers.setSpacing(7);
-
-            vBoxServers.getChildren().add(serverButton);
-
-
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem deleteItem = new MenuItem("Eliminar servidor");
-            contextMenu.getItems().add(deleteItem);
-
-            // Establecer el menú contextual en el botón del servidor
-            serverButton.setContextMenu(contextMenu);
-
-            // Agregar un manejador de eventos al elemento de menú
-            String finalHost1 = host;
-
-
-            deleteItem.setOnAction(event -> {
-
-                if (serverButton.getStyleClass().contains("button-selected")) {
-                    // Mostrar un cuadro de diálogo de error
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("No se puede eliminar el servidor");
-                    alert.setContentText("No puedes eliminar este servidor porque se está visualizando actualmente");
-                    alert.showAndWait();
-                } else {
-
-                    boolean confirmed = showConfirmationDialog("Estás a punto de eliminar el servidor", "¿Estás seguro de que quieres continuar?");
-
-                    if (confirmed) {
-                        vBoxServers.getChildren().remove(serverButton);
-                        TCPClient.removeServerMessage(finalHost1);
-                    }
-                }
-            });
-
-            serverButton.setOnAction(event -> {
-                // Detener el hilo de ejecución anterior (si existe)
-                if (currentThread != null && currentThread.isAlive()) {
-                    currentThread.interrupt();
-                }
-                // Iniciar un nuevo hilo de ejecución para recibir mensajes del servidor
-                currentThread = new Thread(() -> {
-
-                    // Recuperar la dirección IP del botón
-                    String ipAddress = (String) serverButton.getUserData();
-                    while (!Thread.currentThread().isInterrupted()) {
-                        // Obtener los mensajes correspondientes a la dirección IP
-                        Map<String, String> serverMessages = TCPClient.getServerMessages();
-                        String serverMessage = serverMessages.get(ipAddress);
-                        if (serverMessage != null) {
-                            // Actualizar la interfaz con los valores del servidor
-                            Platform.runLater(() -> {
-                                updateGauges(serverMessage);
-                            });
-                        }
-                        try {
-                            Thread.sleep(1000); // Esperar 1 segundo antes de la próxima actualización
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
-                        }
-                    }
-                });
-                currentThread.start();
-
-                Platform.runLater(() -> {
-                    gaugeDisk.setValue(0);
-                    textFieldDisksFormat.clear();
-                    textFieldDiskCapacity.clear();
-                    comboBoxDisks.setValue("Seleccione un disco");
-
-                    for (Node node : vBoxServers.getChildren()) {
-                        if (node instanceof Button) {
-                            node.getStyleClass().remove("button-selected");
-                        }
-                    }
-
-                    // Agregar la clase CSS 'button-selected' al botón actual
-                    serverButton.getStyleClass().add("button-selected");
-                });
-            });
-
-        }
     }
 
 
@@ -498,6 +494,7 @@ public class MainScreenController {
             }
         });
     }
+
     public void closeApp(ActionEvent actionEvent) {
         boolean confirmed = showConfirmationDialog("Se cerrará la aplicación", "¿Quieres continuar?");
         if (confirmed) {
