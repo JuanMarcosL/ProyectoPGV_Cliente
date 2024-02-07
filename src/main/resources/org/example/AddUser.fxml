@@ -1,14 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.example.controller.AddUserController"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane prefHeight="690.0" prefWidth="560.0" style="-fx-background-color: #8093ea; -fx-background-radius: 20px;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.AddUserController">
+   <children>
+      <ImageView fitHeight="167.0" fitWidth="181.0" layoutX="217.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../Images/Logo.png" />
+         </image>
+      </ImageView>
+      <TextField fx:id="textFieldUsuarioRegistro" layoutX="251.0" layoutY="313.0" prefHeight="26.0" prefWidth="266.0" promptText="Introduzca su usuario" style="-fx-background-radius: 5px; -fx-background-color: #FFFFFF;">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font>
+      </TextField>
+      <PasswordField fx:id="passwordFieldClaveRegistro" layoutX="251.0" layoutY="481.0" prefHeight="26.0" prefWidth="266.0" promptText="Introduzca su contraseña" style="-fx-background-radius: 5px; -fx-background-color: #FFFFFF;">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font>
+      </PasswordField>
+      <TextField fx:id="textFieldCorreoRegistro" layoutX="251.0" layoutY="372.0" prefHeight="26.0" prefWidth="266.0" promptText="Introduzca su correo electrónico" style="-fx-background-radius: 5px; -fx-background-color: #FFFFFF;">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="textFieldConfirmacionCorreo" layoutX="251.0" layoutY="424.0" prefHeight="26.0" prefWidth="266.0" promptText="Confirme su correo electrónico" style="-fx-background-radius: 5px; -fx-background-color: #FFFFFF;">
+         <font>
+            <Font name="System Bold Italic" size="12.0" />
+         </font>
+      </TextField>
+      <Button fx:id="botonAceptarRegistro" layoutX="384.0" layoutY="612.0" maxHeight="37.0" mnemonicParsing="false" onAction="#aceptarRegistro" prefHeight="37.0" prefWidth="104.0" stylesheets="@../../CSS/styles.css" text="Aceptar">
+         <styleClass>
+            <String fx:value="botonIniciarSesion" />
+            <String fx:value="botonazo" />
+         </styleClass>
+      </Button>
+      <Button fx:id="botonCancelar" layoutX="115.0" layoutY="612.0" maxHeight="37.0" mnemonicParsing="false" onAction="#cancelar" prefHeight="37.0" prefWidth="104.0" stylesheets="@../../CSS/styles.css" text="Cancelar">
+         <styleClass>
+            <String fx:value="botonIniciarSesion" />
+            <String fx:value="botonazo" />
+         </styleClass>
+      </Button>
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="91.0" layoutY="204.0" prefHeight="43.0" prefWidth="420.0" text="Registro de usuario">
+         <font>
+            <Font name="Consolas Bold" size="36.0" />
+         </font>
+      </Label>
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="24.0" layoutY="305.0" prefHeight="43.0" prefWidth="84.0" text="Usuario">
+         <font>
+            <Font name="Consolas Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="15.0" layoutY="416.0" prefHeight="43.0" prefWidth="200.0" text="Confirme su correo">
+         <font>
+            <Font name="Consolas Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="15.0" layoutY="364.0" prefHeight="43.0" prefWidth="200.0" text="Correo electrónico">
+         <font>
+            <Font name="Consolas Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="18.0" layoutY="473.0" prefHeight="43.0" prefWidth="114.0" text="Contraseña">
+         <font>
+            <Font name="Consolas Bold" size="18.0" />
+         </font>
+      </Label>
+      <CheckBox fx:id="checkboxCondiciones" contentDisplay="GRAPHIC_ONLY" layoutX="250.0" layoutY="532.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="16.0" text="CheckBox" />
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="268.0" layoutY="527.0" prefHeight="26.0" prefWidth="114.0" text="Estoy de acuerdo con ">
+         <font>
+            <Font name="Calibri Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label fx:id="labelCondiciones" alignment="CENTER" contentDisplay="CENTER" layoutX="372.0" layoutY="527.0" onMouseClicked="#mostrarCondiciones" prefHeight="26.0" prefWidth="146.0" style="-fx-cursor: hand;" text="los términos y condiciones" textFill="#1e00ff" underline="true">
+         <font>
+            <Font name="Calibri Bold" size="12.0" />
+         </font>
+      </Label>
+      <ImageView fx:id="flechaAtras" fitHeight="80.0" fitWidth="63.0" layoutX="15.0" layoutY="26.0" onMouseClicked="#irAtras" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
+         <image>
+            <Image url="@../../Images/FlechaAtras-removebg-preview.png" />
+         </image>
+      </ImageView>
+   </children>
 </AnchorPane>

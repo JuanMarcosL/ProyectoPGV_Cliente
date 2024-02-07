@@ -11,7 +11,7 @@ public class AppMain extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        stage.initStyle(StageStyle.UNDECORATED);
+
         LogIn.show();
     }
 

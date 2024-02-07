@@ -88,4 +88,6 @@
     -fx-transition: all 0.5s ease;
 }
 
-
+.textFieldInicio{
+    -fx-text-fill: #000000;
+}
