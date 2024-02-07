@@ -13,7 +13,6 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
@@ -25,16 +24,16 @@
                 <children>
                     <ScrollPane fx:id="scrollPaneServers" layoutX="19.0" layoutY="279.0" prefHeight="355.0" prefWidth="282.0" style="-fx-background-color: #555;" stylesheets="@../../CSS/styles.css">
                <content>
-                            <VBox fx:id="vBoxServers" prefHeight="355.0" prefWidth="279.0" style="-fx-background-color: #555;" />
+                            <VBox fx:id="vBoxServers" prefHeight="355.0" prefWidth="279.0" style="-fx-background-color: #555; -fx-padding: 10 30 10 20;" />
                </content>
                     </ScrollPane>
                  
-                    <Button id="addServer" fx:id="addServerButton" alignment="CENTER" contentDisplay="CENTER" layoutX="66.0" layoutY="642.0" mnemonicParsing="false" onAction="#addServer" prefHeight="54.0" prefWidth="188.0" stylesheets="@../../CSS/styles.css" text="Añadir Servidor">
+                    <Button id="addServer" fx:id="addServerButton" alignment="CENTER" contentDisplay="CENTER" layoutX="66.0" layoutY="651.0" mnemonicParsing="false" onAction="#addServer" prefHeight="54.0" prefWidth="188.0" stylesheets="@../../CSS/styles.css" text="Añadir Servidor">
                <styleClass>
                   <String fx:value="botonAddServer" />
                   <String fx:value="botonazo" />
                </styleClass></Button>
-                    <Label alignment="CENTER" layoutX="40.0" layoutY="220.0" prefHeight="17.0" prefWidth="239.0" text="Servidores" textAlignment="CENTER">
+                    <Label alignment="CENTER" layoutX="41.0" layoutY="230.0" prefHeight="17.0" prefWidth="239.0" text="Servidores" textAlignment="CENTER">
                         <font>
                             <Font name="Consolas" size="30.0" />
                         </font>
@@ -151,14 +150,24 @@
             </Label>
          </children>
       </Pane>
-      <HBox alignment="TOP_RIGHT" layoutX="-15.0" layoutY="-1.0" prefHeight="30.0" prefWidth="1131.0" style="-fx-background-color: #1f4ef8;">
+      <Pane layoutY="-2.0" prefHeight="32.0" prefWidth="1106.0" style="-fx-background-color: #1f4ef8;">
          <children>
-              <Button fx:id="botonCerrar" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#closeApp" prefHeight="35.0" prefWidth="36.0" style="-fx-background-color: red; -fx-font-weight: 700;" text="X" textFill="#fcfbfb">
+              <Button id="minimize" fx:id="botonMinimizar" alignment="CENTER" contentDisplay="CENTER" layoutX="1035.0" layoutY="2.0" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" onAction="#minimizarAPP" prefHeight="28.0" prefWidth="30.0" styleClass="botonMinimizar" stylesheets="@../../CSS/styles.css" text="-" textFill="#fcfbfb">
                   <font>
                       <Font name="Consolas" size="16.0" />
                   </font>
               </Button>
+            <Button id="close" fx:id="botonCerrar" alignment="CENTER" contentDisplay="CENTER" layoutX="1074.0" layoutY="2.0" mnemonicParsing="false" onAction="#closeApp" prefHeight="28.0" prefWidth="30.0" styleClass="botonParaCerrar" stylesheets="@../../CSS/styles.css" text="X" textFill="#fcfbfb">
+               <font>
+                  <Font name="Consolas" size="16.0" />
+               </font>
+            </Button>
+            <ImageView fx:id="imagenMenu" fitHeight="30.0" fitWidth="37.0" layoutX="14.0" layoutY="3.0" onMouseClicked="#abrirMenu" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../Images/iconoMenu.png" />
+               </image>
+            </ImageView>
          </children>
-      </HBox>
+      </Pane>
     </children>
 </AnchorPane>

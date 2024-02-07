@@ -1,10 +1,11 @@
 .servidores {
     /*-fx-padding: 10;*/
+    -fx-max-height: 20px;
     -fx-font-size: 2em;
     -fx-border-color: #000000;
     -fx-background-color: #f4f4f4;
     -fx-border-width: 1px;
-    -fx-border-radius: 5px;
+    /*-fx-border-radius: 5px;*/
     -fx-cursor: hand;
     -fx-text-fill: #000000;
     -fx-font-weight: bold;
@@ -20,25 +21,11 @@
     -fx-background-color: #094baf;
 }
 
-/*.botonazo {*/
-
-/*    */
-/*    -fx-font-size: 1em;*/
-/*    -fx-border-color: #000000;*/
-/*    -fx-cursor: hand;*/
-/*    -fx-text-fill: #000000;*/
-/*    -fx-border-width: 1px;*/
-/*    -fx-border-radius: 5px;*/
-
-
-/*}*/
-
 .botonazo {
 
+    -fx-max-width: 200px;
+    -fx-max-height: 20px;
     -fx-background-color: linear-gradient(to bottom, #23946e, #16594b);
-
-
-    /*-fx-background-color: #23946e; !* Color de fondo *!*/
     -fx-text-fill: white; /* Color del texto */
     -fx-font-size: 16px; /* Tamaño de la fuente */
     -fx-font-weight: bold; /* Peso de la fuente */
@@ -47,10 +34,48 @@
     -fx-background-radius: 4px; /* Radio de fondo */
     -fx-cursor: hand; /* Cursor */
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1); /* Efecto de sombra */
+    -fx-transition: all 0.5s ease;
+}
+
+.botonazo:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-transition: all 0.5s ease;
 }
 
 .button-selected {
-    -fx-background-color: rgba(24, 57, 252, 0.5);
+    /*-fx-background-color: rgba(24, 57, 252, 0.5);*/
+    -fx-background-color: linear-gradient(to bottom,#1839FC7F , rgba(52, 52, 56, 0.5));
+    -fx-text-fill: #FFFFFF;
+}
+
+
+.dialog-background {
+    -fx-background-color:  #8093EA;
+}
+
+
+.botonParaCerrar{
+    -fx-background-color: #1f4ef8;
+
+    -fx-font-weight: bold;
+}
+.botonParaCerrar:hover {
+    -fx-background-color: #a10303;
+    -fx-cursor: hand;
+
+
+}
+
+
+.botonMinimizar {
+    -fx-background-color: #1f4ef8;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+
+}
+.botonMinimizar:hover {
+    -fx-background-color: #6c6c6c;
 }
 
 

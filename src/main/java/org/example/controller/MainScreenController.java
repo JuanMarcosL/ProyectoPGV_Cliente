@@ -1,5 +1,8 @@
 package org.example.controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,18 +14,24 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
-
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,23 +56,24 @@ public class MainScreenController {
     public LineChart chartRed;
     @FXML
     public Label labelMbps;
-
+    @FXML
+    public Button botonMinimizar;
+    @FXML
+    public ImageView imagenMenu;
     @FXML
     private Gauge gaugeRAM;
-
     @FXML
     private BorderPane borderPaneServers;
-
     @FXML
     private VBox vBoxServers;
-
     @FXML
     private ScrollPane scrollPaneServers;
 
     private XYChart.Series<String, Number> series;
     private ExecutorService executorService = Executors.newFixedThreadPool(10);
-
     private static Thread currentThread;
+    private ContextMenu contextMenu;
+    private boolean menuOpen = false;
 
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("LogIn.fxml"));
@@ -78,12 +88,6 @@ public class MainScreenController {
     public static Stage getStageMainScreen() {
         return stageMainScreen;
     }
-
-    public void closeApp(ActionEvent actionEvent) {
-        Platform.exit();
-        System.exit(0);
-    }
-
 
     public void initialize() {
 
@@ -110,6 +114,26 @@ public class MainScreenController {
         chartRed.getData().add(series);
 
         gaugeDisk.setBarColor(Color.BLUE);
+
+        contextMenu = new ContextMenu();
+        MenuItem cerrarSesion = new MenuItem("Cerrar sesión");
+        cerrarSesion.setOnAction(event -> {
+            boolean confirmed = showConfirmationDialog("Se cerrará la sesión actual", "¿Estás seguro?");
+            if (confirmed) {
+                // Cerrar la ventana actual
+                Stage currentStage = (Stage) imagenMenu.getScene().getWindow();
+                currentStage.close();
+
+                // Abrir la ventana de inicio de sesión
+                try {
+                    showLoginScreen();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        contextMenu.getItems().addAll(cerrarSesion);
+        contextMenu.setOnHidden(event -> menuOpen = false);
     }
 
     public void updateGauges(String serverMessage) {
@@ -187,13 +211,15 @@ public class MainScreenController {
         return discosDivididos;
     }
 
-    public void addServer(ActionEvent actionEvent) {
+    public void addServer(ActionEvent actionEvent) throws Exception {
         showDialogAddServer(actionEvent);
     }
 
-    public void showDialogAddServer(ActionEvent actionEvent) {
+    public void showDialogAddServer(ActionEvent actionEvent) throws Exception {
         Dialog<String[]> dialog = new Dialog<>();
         dialog.setTitle("Añadir servidor");
+        dialog.getDialogPane().getStyleClass().add("dialog-background");
+
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -221,11 +247,49 @@ public class MainScreenController {
             return null;
         });
 
-        String[] result = dialog.showAndWait().orElse(null);
-        if (result != null) {
-            String host = result[1].equalsIgnoreCase("localhost") ? "127.0.0.1" : result[1];
+
+        String host = null;
+        String[] result = null;
+        boolean validData = false;
+
+        do {
+            result = dialog.showAndWait().orElse(null);
+            if (result != null) {
+
+                try {
+                    host = result[1].equalsIgnoreCase("localhost") ? "127.0.0.1" : result[1];
+
+                    validateServerData(result[0], host, result[2]);
+                    validData = true;
+                    if (testConnection(host, Integer.parseInt(result[2]))) {
+                        // Si la conexión es exitosa, agregar el botón del servidor
+
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Conexión exitosa");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Se ha establecido una conexión con el servidor.");
+                        alert.showAndWait();
+                    } else {
+                        throw new Exception("No se pudo establecer una conexión con el servidor.");
+                    }
+                } catch (Exception e) {
+                    // Mostrar un cuadro de diálogo de error con el mensaje de la excepción
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Error al agregar el servidor");
+                    alert.setContentText(e.getMessage());
+                    alert.showAndWait();
+                }
+            } else {
+                break; // Si el usuario canceló el diálogo, romper el bucle
+            }
+        } while (!validData);
+        if (validData) {
+
+            String[] finalResult = result;
+            String finalHost = host;
             new Thread(() -> {
-                TCPClient tcpClient = new TCPClient(result[0], host, Integer.parseInt(result[2]));
+                TCPClient tcpClient = new TCPClient(finalResult[0], finalHost, Integer.parseInt(finalResult[2]));
             }).start();
 
             vBoxServers.setStyle("-fx-padding: 10 30 10 20; -fx-background-color: #555;");
@@ -236,11 +300,43 @@ public class MainScreenController {
             serverButton.getStyleClass().add("servidores"); // Agrega la clase al botón
 
             // Asignar la dirección IP como atributo personalizado del botón
-            serverButton.setUserData(result[1]);
+            serverButton.setUserData(host);
 
             vBoxServers.setSpacing(7);
 
             vBoxServers.getChildren().add(serverButton);
+
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem deleteItem = new MenuItem("Eliminar servidor");
+            contextMenu.getItems().add(deleteItem);
+
+            // Establecer el menú contextual en el botón del servidor
+            serverButton.setContextMenu(contextMenu);
+
+            // Agregar un manejador de eventos al elemento de menú
+            String finalHost1 = host;
+
+
+            deleteItem.setOnAction(event -> {
+
+                if (serverButton.getStyleClass().contains("button-selected")) {
+                    // Mostrar un cuadro de diálogo de error
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("No se puede eliminar el servidor");
+                    alert.setContentText("No puedes eliminar este servidor porque se está visualizando actualmente");
+                    alert.showAndWait();
+                } else {
+
+                    boolean confirmed = showConfirmationDialog("Estás a punto de eliminar el servidor", "¿Estás seguro de que quieres continuar?");
+
+                    if (confirmed) {
+                        vBoxServers.getChildren().remove(serverButton);
+                        TCPClient.removeServerMessage(finalHost1);
+                    }
+                }
+            });
 
             serverButton.setOnAction(event -> {
                 // Detener el hilo de ejecución anterior (si existe)
@@ -287,8 +383,10 @@ public class MainScreenController {
                     serverButton.getStyleClass().add("button-selected");
                 });
             });
+
         }
     }
+
 
     private TextField addFieldToGrid(GridPane grid, String labelText, int row) {
         TextField textField = new TextField();
@@ -297,4 +395,115 @@ public class MainScreenController {
         return textField;
     }
 
+    private boolean showConfirmationDialog(String headerText, String contentText) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmación");
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    private void validateServerData(String alias, String ip, String port) throws Exception {
+        // Comprobar que ninguno de los campos esté vacío
+
+        if (alias == null || alias.isEmpty()) {
+            throw new Exception("El campo Alias no puede estar vacío.");
+        }
+        if (ip == null || ip.isEmpty()) {
+            throw new Exception("El campo IP no puede estar vacío.");
+        }
+        if (port == null || port.isEmpty()) {
+            throw new Exception("El campo Puerto no puede estar vacío.");
+        }
+
+        // Comprobar que el puerto sea un número entero válido
+        try {
+            Integer.parseInt(port);
+        } catch (NumberFormatException e) {
+            throw new Exception("El puerto debe ser un número entero válido.");
+        }
+
+        // Comprobar que la IP y el alias no se repitan con alguna agregada previamente
+        for (Node node : vBoxServers.getChildren()) {
+            if (node instanceof Button) {
+                Button serverButton = (Button) node;
+                if (serverButton.getText().equals(alias)) {
+                    throw new Exception("El alias ya está en uso.");
+                }
+                if (serverButton.getUserData().equals(ip)) {
+                    throw new Exception("Ya hay un servidor con esa IP");
+                }
+            }
+        }
+    }
+
+    private boolean testConnection(String host, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 2000);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public void abrirMenu(MouseEvent mouseEvent) {
+        if (mouseEvent.getButton() == MouseButton.PRIMARY) { // Verifica si se hizo clic con el botón izquierdo
+            if (!menuOpen) {
+                contextMenu.show(imagenMenu, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                menuOpen = true;
+            } else {
+                contextMenu.hide();
+                menuOpen = false;
+            }
+        }
+    }
+
+    private void showLoginScreen() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("/org/example/LogIn.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        //scene.getStylesheets().add(AppMain.class.getResource("..\\..\\CSS\\styles.css").toExternalForm()); // Carga la hoja de estilo
+        Stage loginStage = new Stage();
+        loginStage.setTitle("ServiStat");
+        loginStage.setScene(scene);
+        loginStage.setResizable(false);
+        loginStage.show();
+    }
+
+    public void minimizarAPP(ActionEvent actionEvent) {
+        Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
+
+        // Crear una nueva transición de tiempo
+        Timeline timeline = new Timeline();
+
+        // Agregar una secuencia de acciones a la transición
+        timeline.getKeyFrames().add(
+                new KeyFrame(Duration.seconds(0.2), // Duración de la transición
+                        event -> {
+                            stage.setIconified(true);
+                            stage.opacityProperty().set(1); // Restaurar la opacidad cuando se minimiza
+                        },
+                        new KeyValue(stage.opacityProperty(), 0.0) // Cambiar la propiedad de opacidad a 0
+                )
+        );
+
+        // Iniciar la transición
+        timeline.play();
+
+        // Añadir un listener al estado de la ventana
+        stage.iconifiedProperty().addListener((obs, wasMinimized, isNowMinimized) -> {
+            if (!isNowMinimized) {
+                stage.opacityProperty().set(1); // Restaurar la opacidad cuando se desminimiza
+            }
+        });
+    }
+    public void closeApp(ActionEvent actionEvent) {
+        boolean confirmed = showConfirmationDialog("Se cerrará la aplicación", "¿Quieres continuar?");
+        if (confirmed) {
+            Platform.exit();
+            System.exit(0);
+        }
+    }
 }
+

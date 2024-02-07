@@ -56,6 +56,10 @@ public class TCPClient {
         }
     }
 
+    public static void removeServerMessage(String ipAddress) {
+        serverMessages.remove(ipAddress);
+    }
+
     public static String getLastMessage() {
         return lastMessage.get();
     }
@@ -68,4 +72,6 @@ public class TCPClient {
     public static Map<String, String> getServerMessages() {
         return serverMessages;
     }
+
+
 }
