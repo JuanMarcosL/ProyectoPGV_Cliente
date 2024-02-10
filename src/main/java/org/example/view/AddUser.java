@@ -16,7 +16,6 @@ public class AddUser {
         stageAddUser.setScene(scene);
         stageAddUser.setResizable(false);
         stageAddUser.show();
-
     }
 
     public static Stage getStageAddUser() {

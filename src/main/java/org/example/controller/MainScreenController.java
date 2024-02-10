@@ -78,9 +78,9 @@ public class MainScreenController {
     private ScrollPane scrollPaneServers;
 
     private XYChart.Series<String, Number> series;
-    private ExecutorService executorService = Executors.newFixedThreadPool(10);
+   // private ExecutorService executorService = Executors.newFixedThreadPool(10);
     private static Thread currentThread;
-    private ContextMenu contextMenu;
+    private ContextMenu contextMenu = new ContextMenu();
     private boolean menuOpen = false;
 
     private String aliasServidor = null;
@@ -101,33 +101,29 @@ public class MainScreenController {
 
     public void initialize() {
 
+        initializeGauges();
+        initializeGraphic();
+
+
         scrollPaneServers.setContent(vBoxServers);
         scrollPaneServers.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         comboBoxDisks.setValue("Seleccione un disco");
 
-        gaugeRAM.setThreshold(75);
-        gaugeRAM.setThresholdColor(Gauge.BRIGHT_COLOR);
-        gaugeRAM.setThresholdVisible(true);
-        gaugeRAM.setBarColor(Color.GREEN);
-
-        gaugeCPU.setThreshold(75);
-        gaugeCPU.setThresholdColor(Gauge.BRIGHT_COLOR);
-        gaugeCPU.setThresholdVisible(true);
-        gaugeCPU.setBarColor(Color.GREEN);
-
-        CategoryAxis xAxis = (CategoryAxis) chartRed.getXAxis();
-        xAxis.setTickLabelsVisible(false);
-        xAxis.setTickMarkVisible(false);
-        chartRed.setCreateSymbols(false);
-        series = new XYChart.Series<>();
-        chartRed.getData().add(series);
-
-        gaugeDisk.setBarColor(Color.BLUE);
-
-        contextMenu = new ContextMenu();
         MenuItem generarReporte = new MenuItem("Generar reporte");
         MenuItem cerrarSesion = new MenuItem("Cerrar sesión");
+        contextMenu.getItems().addAll(generarReporte, cerrarSesion);
+        contextMenu.setOnHidden(event -> menuOpen = false);
+
+        generarReporte(generarReporte);
+        cerrarSesion(cerrarSesion);
+    }
+
+    public void generarReporte (MenuItem generarReporte) {
+        generarReporte.setOnAction(this::generarReporte);
+    }
+
+    public void cerrarSesion(MenuItem cerrarSesion){
         cerrarSesion.setOnAction(event -> {
             boolean confirmed = showConfirmationDialog("Se cerrará la sesión actual", "¿Estás seguro?");
             if (confirmed) {
@@ -143,10 +139,27 @@ public class MainScreenController {
                 }
             }
         });
-        contextMenu.getItems().addAll(generarReporte, cerrarSesion);
-        contextMenu.setOnHidden(event -> menuOpen = false);
+    }
+    public void initializeGraphic(){
+        CategoryAxis xAxis = (CategoryAxis) chartRed.getXAxis();
+        xAxis.setTickLabelsVisible(false);
+        xAxis.setTickMarkVisible(false);
+        chartRed.setCreateSymbols(false);
+        series = new XYChart.Series<>();
+        chartRed.getData().add(series);
+    }
+    public void initializeGauges() {
+        gaugeRAM.setThreshold(75);
+        gaugeRAM.setThresholdColor(Gauge.BRIGHT_COLOR);
+        gaugeRAM.setThresholdVisible(true);
+        gaugeRAM.setBarColor(Color.GREEN);
 
-        generarReporte.setOnAction(this::generarReporte);
+        gaugeCPU.setThreshold(75);
+        gaugeCPU.setThresholdColor(Gauge.BRIGHT_COLOR);
+        gaugeCPU.setThresholdVisible(true);
+        gaugeCPU.setBarColor(Color.GREEN);
+
+        gaugeDisk.setBarColor(Color.BLUE);
     }
 
     public void updateGauges(String serverMessage) {
@@ -482,7 +495,6 @@ public class MainScreenController {
     private void showLoginScreen() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("/org/example/LogIn.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        //scene.getStylesheets().add(AppMain.class.getResource("..\\..\\CSS\\styles.css").toExternalForm()); // Carga la hoja de estilo
         Stage loginStage = new Stage();
         loginStage.setTitle("ServiStat");
         loginStage.setScene(scene);
@@ -492,10 +504,8 @@ public class MainScreenController {
 
     public void minimizarAPP(ActionEvent actionEvent) {
         Stage stage = (Stage) ((Button) actionEvent.getSource()).getScene().getWindow();
-
         // Crear una nueva transición de tiempo
         Timeline timeline = new Timeline();
-
         // Agregar una secuencia de acciones a la transición
         timeline.getKeyFrames().add(
                 new KeyFrame(Duration.seconds(0.2), // Duración de la transición
@@ -506,7 +516,6 @@ public class MainScreenController {
                         new KeyValue(stage.opacityProperty(), 0.0) // Cambiar la propiedad de opacidad a 0
                 )
         );
-
         // Iniciar la transición
         timeline.play();
 
@@ -528,12 +537,11 @@ public class MainScreenController {
 
     public void generarArchivoCSV(String aliasServidor, String tipoDato, double valor) {
         String nombreArchivo = "src/main/resources/CSV/reporte.csv";
-        File archivo = new File(nombreArchivo);
+       // File archivo = new File(nombreArchivo);
         FileWriter archivoCSV = null;
 
         try {
             archivoCSV = new FileWriter(nombreArchivo, true);
-
 
             // Escribir los datos en el archivo
             archivoCSV.append(aliasServidor);

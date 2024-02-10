@@ -16,7 +16,6 @@ public class ForgottenPassword {
         stageForgottenPassword.setScene(scene);
         stageForgottenPassword.setResizable(false);
         stageForgottenPassword.show();
-
     }
 
     public static Stage getStageForgottenPassword() {

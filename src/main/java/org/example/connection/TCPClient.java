@@ -1,6 +1,6 @@
 package org.example.connection;
 
-import org.example.model.ServerInfo;
+//import org.example.model.ServerInfo;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -10,7 +10,7 @@ import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TCPClient {
-    private Map<String, ServerInfo> servers = new HashMap<>();
+    //private Map<String, ServerInfo> servers = new HashMap<>();
     private static AtomicReference<String> lastMessage = new AtomicReference<>("");
     private static Map<String, String> serverMessages = new HashMap<>(); // Nuevo campo para el mapa
 
@@ -19,15 +19,15 @@ public class TCPClient {
     }
 
     private void connectToServer(String alias, String host, int port) {
-        String key = host + ":" + port;
-        if (servers.containsKey(key)) {
-            System.out.println("Esta dirección IP y puerto ya están en uso.");
-            return;
-        }
+//        String key = host + ":" + port;
+//        if (servers.containsKey(key)) {
+//            System.out.println("Esta dirección IP y puerto ya están en uso.");
+//            return;
+//        }
 
         try {
             Socket socket = new Socket(host, port);
-            servers.put(key, new ServerInfo(alias, socket));
+            //servers.put(key, new ServerInfo(alias, socket));
 
             Scanner in = new Scanner(socket.getInputStream());
 
@@ -47,7 +47,7 @@ public class TCPClient {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    servers.remove(key);
+                    //servers.remove(key);
                 }
             }).start();
 
