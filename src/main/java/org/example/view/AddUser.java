@@ -12,7 +12,7 @@ public class AddUser {
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("AddUser.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stageAddUser.setTitle("Cake Factory");
+        stageAddUser.setTitle("ServiStat");
         stageAddUser.setScene(scene);
         stageAddUser.setResizable(false);
         stageAddUser.show();

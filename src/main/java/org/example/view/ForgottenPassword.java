@@ -12,7 +12,7 @@ public class ForgottenPassword {
     public static void show() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("ForgottenPassword.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stageForgottenPassword.setTitle("Cake Factory");
+        stageForgottenPassword.setTitle("ServiStat");
         stageForgottenPassword.setScene(scene);
         stageForgottenPassword.setResizable(false);
         stageForgottenPassword.show();
