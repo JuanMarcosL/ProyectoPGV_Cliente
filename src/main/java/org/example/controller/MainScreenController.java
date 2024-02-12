@@ -5,6 +5,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -15,7 +16,14 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -32,7 +40,12 @@ import org.example.AppMain;
 import org.example.connection.TCPClient;
 import eu.hansolo.medusa.Gauge;
 import org.example.models.User;
+
 import javax.swing.*;
+import java.awt.*;
+
+import javafx.scene.input.KeyEvent;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,15 +60,11 @@ import java.util.Optional;
  */
 public class MainScreenController {
 
-    public MainScreenController getMainScreenController() {
-        return this;
-    }
-
     private static Stage stageMainScreen;
     @FXML
     public Button addServerButton;
     @FXML
-    public Button botonCerrar;
+    public static Button botonCerrar;
     @FXML
     public Gauge gaugeCPU;
     @FXML
@@ -95,8 +104,14 @@ public class MainScreenController {
     private int umbralRam = 75;
     private int umbralCpu = 10;
     private int umbralRed = 10;
+
+    public MainScreenController() {
+        stageMainScreen = new Stage();
+    }
+
     /**
      * Este método muestra la pantalla principal.
+     *
      * @throws IOException Si ocurre un error al cargar la interfaz de usuario.
      */
     public static void show() throws IOException {
@@ -111,6 +126,7 @@ public class MainScreenController {
 
     /**
      * Este método devuelve el escenario de la pantalla principal.
+     *
      * @return El escenario de la pantalla principal.
      */
     public static Stage getStageMainScreen() {
@@ -131,18 +147,20 @@ public class MainScreenController {
 
     /**
      * Este método genera un reporte.
+     *
      * @param generarReporte El elemento de menú para generar el reporte.
      */
-    public void generarReporte (MenuItem generarReporte) {
+    public void generarReporte(MenuItem generarReporte) {
 
         generarReporte.setOnAction(this::generarReporte);
     }
 
     /**
      * Este método cierra la sesión actual.
+     *
      * @param cerrarSesion El elemento de menú para cerrar la sesión.
      */
-        public void cerrarSesion(MenuItem cerrarSesion){
+    public void cerrarSesion(MenuItem cerrarSesion) {
         cerrarSesion.setOnAction(event -> {
             boolean confirmed = showConfirmationDialog("Se cerrará la sesión actual", "¿Estás seguro?");
             if (confirmed) {
@@ -159,10 +177,11 @@ public class MainScreenController {
             }
         });
     }
+
     /**
      * Este método inicializa el gráfico.
      */
-    public void initializeGraphic(){
+    public void initializeGraphic() {
         CategoryAxis xAxis = (CategoryAxis) chartRed.getXAxis();
         xAxis.setTickLabelsVisible(false);
         xAxis.setTickMarkVisible(false);
@@ -170,6 +189,7 @@ public class MainScreenController {
         series = new XYChart.Series<>();
         chartRed.getData().add(series);
     }
+
     /**
      * Este método inicializa los medidores.
      */
@@ -204,7 +224,7 @@ public class MainScreenController {
     }
 
     /**
-     * Este método inicializa el menú contextual.
+     * Este método inicializa el menú contextual y añade las diferentes opciones del mismo.
      */
     private void initializeContextMenu() {
         MenuItem configurarUmbrales = new MenuItem("Configurar umbrales");
@@ -219,10 +239,42 @@ public class MainScreenController {
         configurarUmbrales(configurarUmbrales);
         generarReporte(generarReporte);
         cerrarSesion(cerrarSesion);
-        mostrarAyuda(ayuda);
+        // mostrarAyuda();
         eliminarUsuario(eliminarUsuario);
+
+        ayuda.setOnAction(event -> {
+            mostrarAyuda();
+        });
+
     }
 
+    /**
+     * Este método abre el archivo de ayuda de la aplicación.
+     * El archivo de ayuda está en formato .chm y se encuentra en el directorio de recursos del proyecto.
+     * En caso de que ocurra una excepción al intentar abrir el archivo, se imprime la traza de la excepción.
+     */
+    public static void mostrarAyuda() {
+
+        String pathToHelpFile = "src/main/resources/Ayuda/AyudaServiStat.chm";
+        File helpFile = new File(pathToHelpFile);
+
+        Desktop desktop = Desktop.getDesktop();
+
+        try {
+            desktop.open(helpFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * Este método configura los umbrales de uso de recursos del sistema.
+     * Al seleccionar la opción de configurar umbrales en el menú, se abre una nueva ventana
+     * donde el usuario puede ajustar los umbrales de uso de RAM, CPU y Red.
+     *
+     * @param configurarUmbrales El elemento de menú para configurar los umbrales.
+     */
     public void configurarUmbrales(MenuItem configurarUmbrales) {
         configurarUmbrales.setOnAction(event -> {
             try {
@@ -245,8 +297,13 @@ public class MainScreenController {
         });
     }
 
-
-
+    /**
+     * Este método permite al usuario eliminar su cuenta.
+     * Al seleccionar la opción de eliminar usuario en el menú, se muestra un diálogo de confirmación.
+     * Si el usuario confirma, se elimina su cuenta y se cierra la sesión actual.
+     *
+     * @param eliminarUsuario El elemento de menú para eliminar la cuenta del usuario.
+     */
     public void eliminarUsuario(MenuItem eliminarUsuario) {
         eliminarUsuario.setOnAction(event -> {
             boolean confirmed = showConfirmationDialog("Eliminar usuario", "¿Estás seguro de que quieres eliminar tu cuenta?");
@@ -265,19 +322,9 @@ public class MainScreenController {
         });
     }
 
-    public void mostrarAyuda(MenuItem ayuda) {
-        ayuda.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Ayuda");
-            alert.setHeaderText(null);
-            alert.setContentText("Para obtener ayuda, comuníquese con el administrador del sistema.");
-            alert.showAndWait();
-        });
-    }
-
-
     /**
      * Este método actualiza los medidores con los datos del servidor.
+     *
      * @param serverMessage El mensaje del servidor.
      */
     public void updateGauges(String serverMessage) {
@@ -294,6 +341,7 @@ public class MainScreenController {
 
     /**
      * Este método procesa los datos de uso del servidor.
+     *
      * @param splitMessage El mensaje del servidor dividido en partes.
      */
     private void processUsageData(String[] splitMessage) {
@@ -314,6 +362,7 @@ public class MainScreenController {
 
     /**
      * Este método procesa los datos del disco del servidor.
+     *
      * @param splitMessage El mensaje del servidor dividido en partes.
      */
     private void processDiskData(String[] splitMessage) {
@@ -341,6 +390,7 @@ public class MainScreenController {
 
     /**
      * Este método actualiza el cuadro combinado de discos.
+     *
      * @param diskUsage Los datos de uso del disco.
      */
     private void updateComboBoxDisks(String[] diskUsage) {
@@ -355,6 +405,7 @@ public class MainScreenController {
 
     /**
      * Este método actualiza la información del disco.
+     *
      * @param diskInfo La información del disco.
      */
     private void updateDiskInfo(String[] diskInfo) {
@@ -370,6 +421,7 @@ public class MainScreenController {
 
     /**
      * Este método actualiza la interfaz de usuario de los medidores.
+     *
      * @param splitMessage El mensaje del servidor dividido en partes.
      */
     private void updateGaugesUI(String[] splitMessage) {
@@ -379,7 +431,9 @@ public class MainScreenController {
 
         Platform.runLater(() -> {
             gaugeRAM.setValue(ramUsage);
+            gaugeRAM.setThreshold(umbralRam);
             gaugeCPU.setValue(cpuUsage);
+            gaugeCPU.setThreshold(umbralCpu);
             series.getData().add(new XYChart.Data<>(String.valueOf(System.currentTimeMillis()), redSpeed));
             if (series.getData().size() > 11) {
                 series.getData().remove(0);
@@ -390,6 +444,7 @@ public class MainScreenController {
 
     /**
      * Este método divide los datos del disco.
+     *
      * @param discos Los datos del disco.
      * @return Los datos del disco divididos.
      */
@@ -400,6 +455,7 @@ public class MainScreenController {
 
     /**
      * Este método agrega un servidor.
+     *
      * @param actionEvent El evento de acción.
      * @throws Exception Si ocurre un error al agregar el servidor.
      */
@@ -409,6 +465,7 @@ public class MainScreenController {
 
     /**
      * Este método muestra el diálogo para agregar un servidor.
+     *
      * @param actionEvent El evento de acción.
      */
     public void showDialogAddServer(ActionEvent actionEvent) {
@@ -421,13 +478,14 @@ public class MainScreenController {
             if (result != null) {
                 validData = processServerData(result);
             } else {
-                break; // If the user cancels the dialog, break the loop
+                break; // Si el usuario cierra el diálogo, salir del bucle
             }
         } while (!validData);
     }
 
     /**
      * Este método crea un diálogo para agregar un servidor.
+     *
      * @return El diálogo para agregar un servidor.
      */
     private Dialog<String[]> createServerDialog() {
@@ -435,10 +493,10 @@ public class MainScreenController {
         dialog.setTitle("Añadir servidor");
         dialog.getDialogPane().getStyleClass().add("dialog-background");
 
-        GridPane grid = createGridPane(); // Aquí deberías crear el GridPane con los campos de texto
-        TextField alias = (TextField) grid.getChildren().get(1); // Suponiendo que el primer campo de texto es para el alias
-        TextField ip = (TextField) grid.getChildren().get(3); // Suponiendo que el segundo campo de texto es para la IP
-        TextField puerto = (TextField) grid.getChildren().get(5); // Suponiendo que el tercer campo de texto es para el puerto
+        GridPane grid = createGridPane();
+        TextField alias = (TextField) grid.getChildren().get(1);
+        TextField ip = (TextField) grid.getChildren().get(3);
+        TextField puerto = (TextField) grid.getChildren().get(5);
 
         dialog.getDialogPane().setContent(grid);
 
@@ -456,8 +514,10 @@ public class MainScreenController {
 
         return dialog;
     }
+
     /**
      * Este método crea un panel de cuadrícula para el diálogo de agregar servidor.
+     *
      * @return El panel de cuadrícula.
      */
     private GridPane createGridPane() {
@@ -475,9 +535,10 @@ public class MainScreenController {
 
     /**
      * Este método agrega un campo de texto al panel de cuadrícula.
-     * @param grid El panel de cuadrícula.
+     *
+     * @param grid  El panel de cuadrícula.
      * @param label La etiqueta del campo de texto.
-     * @param row La fila en la que se debe agregar el campo de texto.
+     * @param row   La fila en la que se debe agregar el campo de texto.
      * @return El campo de texto.
      */
     private TextField addFieldToGrid(GridPane grid, String label, int row) {
@@ -490,7 +551,8 @@ public class MainScreenController {
 
     /**
      * Este método configura el estilo del botón en el diálogo.
-     * @param dialog El diálogo.
+     *
+     * @param dialog        El diálogo.
      * @param addButtonType El tipo de botón a configurar.
      */
     private void setupButtonStyle(Dialog<String[]> dialog, ButtonType addButtonType) {
@@ -502,6 +564,7 @@ public class MainScreenController {
 
     /**
      * Este método procesa los datos del servidor.
+     *
      * @param result Los datos del servidor.
      * @return Verdadero si los datos son válidos, falso en caso contrario.
      */
@@ -523,8 +586,9 @@ public class MainScreenController {
 
     /**
      * Este método maneja una conexión exitosa con el servidor.
+     *
      * @param result Los datos del servidor.
-     * @param host El host del servidor.
+     * @param host   El host del servidor.
      */
     private void handleSuccessfulConnection(String[] result, String host) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -543,8 +607,9 @@ public class MainScreenController {
 
     /**
      * Este método configura el botón del servidor.
+     *
      * @param alias El alias del servidor.
-     * @param host El host del servidor.
+     * @param host  El host del servidor.
      */
     private void setupServerButton(String alias, String host) {
         Button serverButton = new Button(alias);
@@ -563,8 +628,9 @@ public class MainScreenController {
 
     /**
      * Este método crea un menú contextual para el botón del servidor.
+     *
      * @param serverButton El botón del servidor.
-     * @param host El host del servidor.
+     * @param host         El host del servidor.
      * @return El menú contextual.
      */
     private ContextMenu createContextMenu(Button serverButton, String host) {
@@ -578,8 +644,9 @@ public class MainScreenController {
 
     /**
      * Este método maneja la acción de eliminar servidor.
+     *
      * @param serverButton El botón del servidor.
-     * @param host El host del servidor.
+     * @param host         El host del servidor.
      */
     private void handleDeleteServerAction(Button serverButton, String host) {
         if (serverButton.getStyleClass().contains("button-selected")) {
@@ -595,6 +662,7 @@ public class MainScreenController {
 
     /**
      * Este método maneja la acción del botón del servidor.
+     *
      * @param serverButton El botón del servidor.
      */
     private void handleServerButtonAction(Button serverButton) {
@@ -611,8 +679,9 @@ public class MainScreenController {
 
     /**
      * Este método escucha los mensajes del servidor.
+     *
      * @param serverButton El botón del servidor.
-     * @param ipAddress La dirección IP del servidor.
+     * @param ipAddress    La dirección IP del servidor.
      */
     private void listenForServerMessages(Button serverButton, String ipAddress) {
         while (!Thread.currentThread().isInterrupted()) {
@@ -632,6 +701,7 @@ public class MainScreenController {
 
     /**
      * Este método actualiza la interfaz de usuario.
+     *
      * @param serverButton El botón del servidor.
      */
     private void updateUI(Button serverButton) {
@@ -653,7 +723,8 @@ public class MainScreenController {
 
     /**
      * Este método muestra un diálogo de error.
-     * @param title El título del diálogo.
+     *
+     * @param title   El título del diálogo.
      * @param message El mensaje del diálogo.
      */
     private void showErrorDialog(String title, String message) {
@@ -666,7 +737,8 @@ public class MainScreenController {
 
     /**
      * Este método muestra un diálogo de confirmación.
-     * @param title El título del diálogo.
+     *
+     * @param title   El título del diálogo.
      * @param message El mensaje del diálogo.
      * @return Verdadero si el usuario confirma, falso en caso contrario.
      */
@@ -681,9 +753,10 @@ public class MainScreenController {
 
     /**
      * Este método valida los datos del servidor.
+     *
      * @param alias El alias del servidor.
-     * @param ip La dirección IP del servidor.
-     * @param port El puerto del servidor.
+     * @param ip    La dirección IP del servidor.
+     * @param port  El puerto del servidor.
      * @throws Exception Si los datos no son válidos.
      */
     private void validateServerData(String alias, String ip, String port) throws Exception {
@@ -722,6 +795,7 @@ public class MainScreenController {
 
     /**
      * Este método prueba la conexión con el servidor.
+     *
      * @param host El host del servidor.
      * @param port El puerto del servidor.
      * @return Verdadero si la conexión es exitosa, falso en caso contrario.
@@ -737,6 +811,7 @@ public class MainScreenController {
 
     /**
      * Este método abre el menú.
+     *
      * @param mouseEvent El evento del ratón.
      */
     public void abrirMenu(MouseEvent mouseEvent) {
@@ -753,6 +828,7 @@ public class MainScreenController {
 
     /**
      * Este método muestra la pantalla de inicio de sesión.
+     *
      * @throws IOException Si ocurre un error al cargar la interfaz de usuario.
      */
     private void showLoginScreen() throws IOException {
@@ -767,6 +843,7 @@ public class MainScreenController {
 
     /**
      * Este método minimiza la aplicación.
+     *
      * @param actionEvent El evento de acción.
      */
     public void minimizarAPP(ActionEvent actionEvent) {
@@ -796,6 +873,7 @@ public class MainScreenController {
 
     /**
      * Este método cierra la aplicación.
+     *
      * @param actionEvent El evento de acción.
      */
     public void closeApp(ActionEvent actionEvent) {
@@ -808,18 +886,17 @@ public class MainScreenController {
 
     /**
      * Este método genera un archivo CSV.
+     *
      * @param aliasServidor El alias del servidor.
-     * @param tipoDato El tipo de dato.
-     * @param valor El valor del dato.
+     * @param tipoDato      El tipo de dato.
+     * @param valor         El valor del dato.
      */
     public void generarArchivoCSV(String aliasServidor, String tipoDato, double valor) {
         String nombreArchivo = "src/main/resources/CSV/reporte.csv";
-       // File archivo = new File(nombreArchivo);
         FileWriter archivoCSV = null;
 
         try {
             archivoCSV = new FileWriter(nombreArchivo, true);
-
             // Escribir los datos en el archivo
             archivoCSV.append(aliasServidor);
             archivoCSV.append(",");
@@ -846,6 +923,7 @@ public class MainScreenController {
 
     /**
      * Este método genera un reporte.
+     *
      * @param actionEvent El evento de acción.
      */
     public void generarReporte(ActionEvent actionEvent) {
@@ -889,21 +967,56 @@ public class MainScreenController {
         }
     }
 
+    /**
+     * Este método establece el umbral de RAM.
+     *
+     * @param umbralRam El umbral de RAM a establecer.
+     */
     public void setUmbralRam(int umbralRam) {
         this.umbralRam = umbralRam;
     }
+
+    /**
+     * Este método establece el umbral de CPU.
+     *
+     * @param umbralCpu El umbral de CPU a establecer.
+     */
     public void setUmbralCpu(int umbralCpu) {
         this.umbralCpu = umbralCpu;
     }
+
+    /**
+     * Este método establece el umbral de Red.
+     *
+     * @param umbralRed El umbral de Red a establecer.
+     */
     public void setUmbralRed(int umbralRed) {
         this.umbralRed = umbralRed;
     }
+
+    /**
+     * Este método devuelve el umbral de RAM.
+     *
+     * @return El umbral de RAM.
+     */
     public int getUmbralRam() {
         return umbralRam;
     }
+
+    /**
+     * Este método devuelve el umbral de CPU.
+     *
+     * @return El umbral de CPU.
+     */
     public int getUmbralCpu() {
         return umbralCpu;
     }
+
+    /**
+     * Este método devuelve el umbral de Red.
+     *
+     * @return El umbral de Red.
+     */
     public int getUmbralRed() {
         return umbralRed;
     }

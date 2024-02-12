@@ -5,19 +5,20 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="519.0" prefWidth="668.0" style="-fx-background-color: #8093ea;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.UmbralController">
+<AnchorPane prefHeight="560.0" prefWidth="616.0" style="-fx-background-color: #8093ea;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.UmbralController">
    <children>
       <ImageView fitHeight="61.0" fitWidth="69.0" layoutX="20.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../../Images/Logo.png" />
          </image>
       </ImageView>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="63.0" layoutY="83.0" prefHeight="46.0" prefWidth="563.0" text="Configuración de Umbrales">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="51.0" layoutY="83.0" prefHeight="46.0" prefWidth="563.0" text="Configuración de Umbrales">
          <font>
             <Font name="Consolas Bold" size="36.0" />
          </font>
@@ -39,34 +40,43 @@
       </Label>
       <Slider fx:id="sliderCPU" layoutX="194.0" layoutY="301.0" prefHeight="14.0" prefWidth="298.0" />
       <Slider fx:id="sliderRam" layoutX="194.0" layoutY="218.0" prefHeight="14.0" prefWidth="298.0" />
-      <Button fx:id="botonAceptarUmbral" layoutX="496.0" layoutY="469.0" maxHeight="37.0" mnemonicParsing="false" onAction="#aceptarUmbrales" prefHeight="37.0" prefWidth="104.0" stylesheets="@../../CSS/styles.css" text="Aceptar">
+      <Button fx:id="botonAceptarUmbral" layoutX="449.0" layoutY="500.0" maxHeight="37.0" mnemonicParsing="false" onAction="#aceptarUmbrales" prefHeight="37.0" prefWidth="104.0" stylesheets="@../../CSS/styles.css" text="Aceptar">
          <styleClass>
             <String fx:value="botonIniciarSesion" />
             <String fx:value="botonazo" />
          </styleClass>
       </Button>
-      <Button fx:id="botonCancelar" layoutX="334.0" layoutY="469.0" maxHeight="37.0" mnemonicParsing="false" onAction="#cancelar" prefHeight="37.0" prefWidth="104.0" stylesheets="@../../CSS/styles.css" text="Cancelar">
+      <Button fx:id="botonCancelar" layoutX="291.0" layoutY="500.0" maxHeight="37.0" mnemonicParsing="false" onAction="#cancelar" prefHeight="37.0" prefWidth="104.0" stylesheets="@../../CSS/styles.css" text="Cancelar">
          <styleClass>
             <String fx:value="botonIniciarSesion" />
             <String fx:value="botonazo" />
          </styleClass>
       </Button>
-      <Label fx:id="labelRAM" alignment="CENTER" contentDisplay="CENTER" layoutX="548.0" layoutY="214.0" prefHeight="22.0" prefWidth="104.0" text="MBPS">
+      <Label fx:id="labelRAM" alignment="CENTER" contentDisplay="CENTER" layoutX="501.0" layoutY="214.0" prefHeight="22.0" prefWidth="104.0" text="MBPS">
          <font>
             <Font name="Consolas Bold" size="18.0" />
          </font>
+         <tooltip>
+            <Tooltip text="Se enviará una alerta cada vez que la velocidad de red descienda de este valor" />
+         </tooltip>
       </Label>
-      <Label fx:id="labelCPU" alignment="CENTER" contentDisplay="CENTER" layoutX="548.0" layoutY="297.0" prefHeight="22.0" prefWidth="104.0" text="MBPS">
+      <Label fx:id="labelCPU" alignment="CENTER" contentDisplay="CENTER" layoutX="501.0" layoutY="297.0" prefHeight="22.0" prefWidth="104.0" text="MBPS">
          <font>
             <Font name="Consolas Bold" size="18.0" />
          </font>
+         <tooltip>
+            <Tooltip text="Se enviará una alerta cada vez que el uso del CPU supere este valor" />
+         </tooltip>
       </Label>
-      <Label fx:id="labelRed" alignment="CENTER" contentDisplay="CENTER" layoutX="548.0" layoutY="386.0" prefHeight="22.0" prefWidth="104.0" text="MBPS">
+      <Label fx:id="labelRed" alignment="CENTER" contentDisplay="CENTER" layoutX="501.0" layoutY="386.0" prefHeight="22.0" prefWidth="104.0" text="Mbps">
          <font>
             <Font name="Consolas Bold" size="18.0" />
          </font>
+         <tooltip>
+            <Tooltip text="Se enviará una alerta cada vez que el uso de la RAM supere este valor" />
+         </tooltip>
       </Label>
-      <TextField fx:id="textFieldRed" layoutX="194.0" layoutY="382.0" prefHeight="30.0" prefWidth="298.0">
+      <TextField fx:id="textFieldRed" alignment="CENTER_RIGHT" layoutX="194.0" layoutY="382.0" prefHeight="30.0" prefWidth="298.0">
          <font>
             <Font name="Consolas Bold" size="18.0" />
          </font></TextField>
